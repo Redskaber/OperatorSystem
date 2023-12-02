@@ -5,6 +5,8 @@
 */
 #include "process_scheduling.h"
 
+
+
 //创建进程： 系统接收到新的任务或作业时，创建相应的进程
 //创建进程控制块
 //就绪队列： 进程进入就绪队列，等待系统调度。
@@ -18,6 +20,8 @@
 //如果是，将进程状态改为终止状态，释放资源。
 //如果否，进程继续执行。
 //循环执行： 以上步骤循环执行，系统选择下一个要执行的进程。
+
+
 
 static ProConBlock *headProConBlock() {
     ProConBlock *head = (ProConBlock *) malloc(sizeof(ProConBlock));
@@ -113,6 +117,36 @@ void pushToLink(ProConBlock *proConBlock, ProConBlockLink *proConBlockLink) {
     }
 }
 
+inline static void insertProConBlockToOrderLink(
+        ProConBlockLink *proConBlockLink, ProConBlock *orderProConBlock, ProConBlock *insertProConBlock) {
+
+    // order         ↓
+    // insertIndex   ↓
+    // insertData            ↓
+    // H        ->  [1] <-> [2] <-> [3] -> NULL
+    // 1.脱 插入节点上节点指向下节点，下节点指向上节点
+
+    insertProConBlock->perProConBlock->aftProConBlock = insertProConBlock->aftProConBlock;
+    if (insertProConBlock->aftProConBlock != NULL) {
+        insertProConBlock->aftProConBlock->perProConBlock = insertProConBlock->perProConBlock;
+    } else {
+        // 4.末尾值处理，当insert data 是最后的值时， order值一定时last data
+        proConBlockLink->lastProConBlock = insertProConBlock->perProConBlock;
+    }
+
+    // 2.按 将脱下的节点按到指定节点之后上
+    if (orderProConBlock != proConBlockLink->headProConBlock) {
+        insertProConBlock->perProConBlock = orderProConBlock;
+    } else {
+        insertProConBlock->perProConBlock = NULL;
+    }
+
+    insertProConBlock->aftProConBlock = orderProConBlock->aftProConBlock;
+    orderProConBlock->aftProConBlock->perProConBlock = insertProConBlock;
+    orderProConBlock->aftProConBlock = insertProConBlock;
+}
+
+
 void sortLinkFromLinkParam(ProConBlockLink *proConBlockLink, Compare compare) {
     // 下面使用类似数组中的插入排序，一致的思想
     // order         ↓
@@ -128,13 +162,10 @@ void sortLinkFromLinkParam(ProConBlockLink *proConBlockLink, Compare compare) {
     ProConBlock *insertData = NULL;
     ProConBlock *insertIndex = NULL;
 
-    while (order != NULL) {
+    while (order->aftProConBlock != NULL) {
         insertData = order->aftProConBlock;
-        if (insertData == NULL) {
-            break;
-        }
-
         insertIndex = order;
+
         while (insertIndex != NULL && compare(insertData, insertIndex)) {
             insertIndex = insertIndex->perProConBlock;
         }
@@ -143,26 +174,7 @@ void sortLinkFromLinkParam(ProConBlockLink *proConBlockLink, Compare compare) {
         }
 
         if (insertIndex != order) {
-            // 1.脱 插入节点上节点指向下节点，下节点指向上节点
-            insertData->perProConBlock->aftProConBlock = insertData->aftProConBlock;
-            if (insertData->aftProConBlock != NULL) {
-                insertData->aftProConBlock->perProConBlock = insertData->perProConBlock;
-            } else {
-                // 4.末尾值处理，当insert data 是最后的值时， order值一定时last data
-                proConBlockLink->lastProConBlock = order;
-            }
-
-            // 2.按 将脱下的节点按到指定节点之后上
-            if (insertIndex != proConBlockLink->headProConBlock) {
-                insertData->perProConBlock = insertIndex;
-            } else {
-                insertData->perProConBlock = NULL;
-            }
-
-            insertData->aftProConBlock = insertIndex->aftProConBlock;
-            insertIndex->aftProConBlock->perProConBlock = insertData;
-            insertIndex->aftProConBlock = insertData;
-
+            insertProConBlockToOrderLink(proConBlockLink, insertIndex, insertData);
         } else {
             // 3.归 如果没有发生交换，则往后移动一位，否则应当不移动
             order = order->aftProConBlock;
@@ -290,7 +302,8 @@ void firstComeFirstServe(ProConBlockLink *proConBlockLink) {
     reverseProConBlockFromLink(proConBlockLink);
 }
 
-static void insertProConBlock(ProConBlockLink *proConBlockLink, ProConBlock *slow, ProConBlock *quick) {
+inline static void
+insertProConBlockToSamePriorityAfter(ProConBlockLink *proConBlockLink, ProConBlock *slow, ProConBlock *quick) {
     // slow   ↓
     // quick  ↓
     // [h] -> [] <-> [] <-> [] <-> [] -> NULL
@@ -315,13 +328,13 @@ static void insertProConBlock(ProConBlockLink *proConBlockLink, ProConBlock *slo
     }
 }
 
-static
-ProConBlock *
-orderProConBlock(ProConBlockLink *proConBlockLink, ProConBlock *slow, ProConBlock *quick, ProcessPriority priority) {
+inline static ProConBlock *
+orderProConBlockThroughPriority(ProConBlockLink *proConBlockLink, ProConBlock *slow, ProConBlock *quick,
+                                ProcessPriority priority) {
     while (quick != NULL) {
         if (quick->p_priority == priority) {
             if (slow != quick) {
-                insertProConBlock(proConBlockLink, slow, quick);
+                insertProConBlockToSamePriorityAfter(proConBlockLink, slow, quick);
             }
             slow = slow->aftProConBlock;
         }
@@ -330,7 +343,7 @@ orderProConBlock(ProConBlockLink *proConBlockLink, ProConBlock *slow, ProConBloc
     return slow;
 }
 
-void prioritySort(ProConBlockLink *proConBlockLink) {
+void priorityScheduling(ProConBlockLink *proConBlockLink) {
     if (proConBlockLink->headProConBlock->aftProConBlock == NULL ||
         proConBlockLink->headProConBlock->aftProConBlock == proConBlockLink->lastProConBlock)
         return;
@@ -341,10 +354,10 @@ void prioritySort(ProConBlockLink *proConBlockLink) {
     ProConBlock *slow = proConBlockLink->headProConBlock->aftProConBlock;
     ProConBlock *quick = proConBlockLink->headProConBlock->aftProConBlock;
 
-    slow = orderProConBlock(proConBlockLink, slow, quick, exigency);
-    slow = orderProConBlock(proConBlockLink, slow, slow, high);
-    slow = orderProConBlock(proConBlockLink, slow, slow, normal);
-    orderProConBlock(proConBlockLink, slow, slow, low);
+    slow = orderProConBlockThroughPriority(proConBlockLink, slow, quick, exigency);
+    slow = orderProConBlockThroughPriority(proConBlockLink, slow, slow, high);
+    slow = orderProConBlockThroughPriority(proConBlockLink, slow, slow, normal);
+    orderProConBlockThroughPriority(proConBlockLink, slow, slow, low);
 }
 
 // exe
@@ -365,7 +378,7 @@ void executeOver(ProConBlockLink *proConBlockLink) {
     }
 }
 
-static ProConBlock *removeNextProConBlockFromLink(ProConBlock *loopLink) {
+inline static ProConBlock *removeNextProConBlockFromLink(ProConBlock *loopLink) {
     loopLink->perProConBlock->aftProConBlock = loopLink->aftProConBlock;
     loopLink->aftProConBlock->perProConBlock = loopLink->perProConBlock;
     return loopLink;
@@ -399,7 +412,7 @@ ProConBlock *runningProConBlockTask(ProConBlock *loopLink) {
     return loopLink;
 }
 
-ProConBlock *
+inline static ProConBlock *
 reconfigurationProConBlockLink(ProConBlockLink *proConBlockLink, ProConBlock *finishLink, ProConBlock *cache) {
     if (finishLink == NULL) {
         cache->perProConBlock = NULL;
@@ -459,7 +472,7 @@ void roundRobinScheduling(ProConBlockLink *proConBlockLink) {
     displayProConBlockLink(proConBlockLink);
 }
 
-static _Bool jobTimeCompare(void *p1, void *p2) {
+inline static _Bool jobTimeCompare(void *p1, void *p2) {
     return ((ProConBlock *) (p1))->p_total_time < ((ProConBlock *) (p2))->p_total_time;
 }
 

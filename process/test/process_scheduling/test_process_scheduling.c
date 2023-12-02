@@ -5,6 +5,16 @@
 */
 #include "test_process_scheduling.h"
 
+
+// 自定义排序规则
+static _Bool priorityCompare(void *a, void *b) {
+    return ((ProConBlock *) a)->p_priority < ((ProConBlock *) b)->p_priority;
+}
+
+static _Bool totalTimeCompare(void *a, void *b) {
+    return ((ProConBlock *) a)->p_total_time < ((ProConBlock *) b)->p_total_time;
+}
+
 static void *callback(void *proConBlock) {
 //    va_list argList;
 //    va_start(argList, args);
@@ -31,7 +41,7 @@ static void test_pushToLink() {
     ProConBlock *tp = test_create_ProConBlock();
     ProConBlockLink *tpl = test_create_ProConBlockLink();
     pushToLink(tp, tpl);
-};
+}
 
 void test_process_scheduling() {
     ProConBlock *proConBlock1 = initProConBlock(0x0001, "process-0x0001", 20, normal, callback);
@@ -99,8 +109,13 @@ void test_process_scheduling() {
 
     // running
 //    runningProConBlockFromLink(proConBlockLink, NULL, roundRobinScheduling);
-    shortestJobNext(proConBlockLink);
+//    shortestJobNext(proConBlockLink);
+    sortLinkFromLinkParam(proConBlockLink, priorityCompare);
     displayProConBlockLink(proConBlockLink);
+
+//    sortLinkFromLinkParam(proConBlockLink, totalTimeCompare);
+//    displayProConBlockLink(proConBlockLink);
+
     destroyProConBlockLink(proConBlockLink);
 //    FirstComeFirstServe(proConBlockLink);
 //    displayProConBlockLink(proConBlockLink);

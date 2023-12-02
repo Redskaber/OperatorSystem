@@ -168,7 +168,9 @@ extern void destroyProConBlockLink(ProConBlockLink *proConBlockLink);
 
 extern void priorityInsertLink(ProConBlock *proConBlock, ProConBlockLink *proConBlockLink);
 
-extern void prioritySort(ProConBlockLink *proConBlockLink);
+extern void sortLinkFromLinkParam(ProConBlockLink *proConBlockLink, Compare compare);
+
+extern void priorityScheduling(ProConBlockLink *proConBlockLink);
 
 extern void runningProConBlockFromLink(
         ProConBlockLink *proConBlockLink,
