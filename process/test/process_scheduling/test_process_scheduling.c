@@ -54,12 +54,17 @@ void test_process_scheduling() {
 
     ProConBlockLink *proConBlockLink = initProConBlockLink();
     // push
-    pushToLink(proConBlock1, proConBlockLink);
-    pushToLink(proConBlock2, proConBlockLink);
-    pushToLink(proConBlock3, proConBlockLink);
-    pushToLink(proConBlock4, proConBlockLink);
-    pushToLink(proConBlock5, proConBlockLink);
+//    pushToLink(proConBlock1, proConBlockLink);
+//    pushToLink(proConBlock2, proConBlockLink);
+//    pushToLink(proConBlock3, proConBlockLink);
+//    pushToLink(proConBlock4, proConBlockLink);
+//    pushToLink(proConBlock5, proConBlockLink);
 
+    insertToLinkFromParam(proConBlockLink, proConBlock1, priorityCompare);
+    insertToLinkFromParam(proConBlockLink, proConBlock2, priorityCompare);
+    insertToLinkFromParam(proConBlockLink, proConBlock3, priorityCompare);
+    insertToLinkFromParam(proConBlockLink, proConBlock4, priorityCompare);
+    insertToLinkFromParam(proConBlockLink, proConBlock5, priorityCompare);
 //    displayProConBlockLink(proConBlockLink);
 //    destroyProConBlockLink(proConBlockLink);
 
@@ -110,7 +115,7 @@ void test_process_scheduling() {
     // running
 //    runningProConBlockFromLink(proConBlockLink, NULL, roundRobinScheduling);
 //    shortestJobNext(proConBlockLink);
-    sortLinkFromLinkParam(proConBlockLink, priorityCompare);
+//    sortLinkFromLinkParam(proConBlockLink, priorityCompare);
     displayProConBlockLink(proConBlockLink);
 
 //    sortLinkFromLinkParam(proConBlockLink, totalTimeCompare);

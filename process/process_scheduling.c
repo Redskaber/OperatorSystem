@@ -24,6 +24,12 @@
 
 
 static ProConBlock *headProConBlock() {
+    /*
+     * @Description:
+     *  Create a header node that does not have any control function to
+     *  facilitate the processing of linked lists.
+     */
+
     ProConBlock *head = (ProConBlock *) malloc(sizeof(ProConBlock));
     head->p_id = 0x0;
     head->p_name = "HEAD";
@@ -42,6 +48,18 @@ static ProConBlock *headProConBlock() {
 
 ProConBlock *
 initProConBlock(int p_id, char *p_name, double p_total_time, ProcessPriority p_priority, CallBack callBack) {
+    /*
+     * @Param:
+     *  p_id: process id
+     *  p_name: process name
+     *  p_total_time: process execute total time
+     *  p_priority: process priority
+     *  callback: callback function
+     *
+     * @Description:
+     *  Used to create a PCB node and return a pointer of that type.
+     */
+
     ProConBlock *newProConBlock = headProConBlock();
 
     newProConBlock->p_id = p_id;
@@ -61,6 +79,14 @@ initProConBlock(int p_id, char *p_name, double p_total_time, ProcessPriority p_p
 }
 
 void destroyProConBlock(ProConBlock *proConBlock) {
+    /*
+     * @Param:
+     *  proConBlock: destroy process control block.
+     *
+     * @Description:
+     *  Used destroy link process control block.
+     */
+
     if (proConBlock != NULL) {
         if (proConBlock->aftProConBlock != NULL) {
             destroyProConBlock(proConBlock->aftProConBlock);
@@ -71,20 +97,33 @@ void destroyProConBlock(ProConBlock *proConBlock) {
     }
 }
 
-void displayProConBlock(ProConBlock *ProConBlock) {
+void displayProConBlock(ProConBlock *proConBlock) {
+    /*
+     * @Param:
+     *  proConBlock: used display process control block.
+     *
+     * @Description:
+     *  used display process control block.
+     */
+
     printf_s("###################################\n");
     printf_s("process:\n");
-    printf_s("\tprocess_id: %d\n", ProConBlock->p_id);
-    printf_s("\tprocess_name: %s\n", ProConBlock->p_name);
-    printf_s("\tprocess_state: %s\n", proStateToString(ProConBlock->p_state));
-    printf_s("\tprocess_priority: %s\n", proPriorityToString(ProConBlock->p_priority));
-    printf_s("\tprocess_total_time: %f\n", ProConBlock->p_total_time);
-    printf_s("\tprocess_execute_time: %f\n", ProConBlock->p_execute_time);
+    printf_s("\tprocess_id: %d\n", proConBlock->p_id);
+    printf_s("\tprocess_name: %s\n", proConBlock->p_name);
+    printf_s("\tprocess_state: %s\n", proStateToString(proConBlock->p_state));
+    printf_s("\tprocess_priority: %s\n", proPriorityToString(proConBlock->p_priority));
+    printf_s("\tprocess_total_time: %f\n", proConBlock->p_total_time);
+    printf_s("\tprocess_execute_time: %f\n", proConBlock->p_execute_time);
     printf_s("###################################\n");
 }
 
 
 ProConBlockLink *initProConBlockLink() {
+    /*
+     * @Description:
+     *  used init process control block link.
+     */
+
     ProConBlockLink *newProConBlockLink = NULL;
     newProConBlockLink = (ProConBlockLink *) malloc(sizeof(ProConBlockLink));
     newProConBlockLink->headProConBlock = headProConBlock();
@@ -94,6 +133,14 @@ ProConBlockLink *initProConBlockLink() {
 }
 
 void destroyProConBlockLink(ProConBlockLink *proConBlockLink) {
+    /*
+     * @Param:
+     *  proConBlockLink: process control block link.
+     *
+     * @Description:
+     *  used destroy process control block link.
+     */
+
     if (proConBlockLink != NULL) {
         destroyProConBlock(proConBlockLink->headProConBlock);
         free(proConBlockLink);
@@ -101,6 +148,16 @@ void destroyProConBlockLink(ProConBlockLink *proConBlockLink) {
 }
 
 void pushToLink(ProConBlock *proConBlock, ProConBlockLink *proConBlockLink) {
+    /*
+     * @Param:
+     *  proConBlock: process control block.
+     *  proConBlockLink: process control block link.
+     *
+     * @Description:
+     * Insert the process control block into the process control block linked list,
+     * and insert the header
+     */
+
     if (proConBlockLink->headProConBlock->aftProConBlock == NULL) {
         // [] -> []
         proConBlockLink->headProConBlock->aftProConBlock = proConBlock;
@@ -119,6 +176,16 @@ void pushToLink(ProConBlock *proConBlock, ProConBlockLink *proConBlockLink) {
 
 inline static void insertProConBlockToOrderLink(
         ProConBlockLink *proConBlockLink, ProConBlock *orderProConBlock, ProConBlock *insertProConBlock) {
+    /*
+     * @Param:
+     *  proConBlockLink: process control block link.
+     *  orderProConBlock: order process control block.
+     *  insertProConBlock: insert process control block.
+     *
+     * @Description:
+     *  Inserts the inserted process control block into the next location of the
+     *  ordered process control block in the process control chain.
+     */
 
     // order         ↓
     // insertIndex   ↓
@@ -148,6 +215,15 @@ inline static void insertProConBlockToOrderLink(
 
 
 void sortLinkFromLinkParam(ProConBlockLink *proConBlockLink, Compare compare) {
+    /*
+     * @Param:
+     *  proConBlockLink: process control block link
+     *  compare: sort compare function.
+     *
+     * @Description:
+     *  Used to sort linked lists according to sort comparison function.
+     */
+
     // 下面使用类似数组中的插入排序，一致的思想
     // order         ↓
     // insertIndex   ↓
@@ -185,6 +261,14 @@ void sortLinkFromLinkParam(ProConBlockLink *proConBlockLink, Compare compare) {
 
 
 void popBlackFromLink(ProConBlockLink *proConBlockLink) {
+    /*
+     * @Param:
+     *  proConBlockLink: process control block link.
+     *
+     * @Description:
+     *  Remove the last process control block in the process control block linked list.
+     */
+
     if (proConBlockLink->lastProConBlock != NULL) {
         if (proConBlockLink->headProConBlock->aftProConBlock != proConBlockLink->lastProConBlock) {
             // [h] -> [] <-> [] <-> []
@@ -204,6 +288,14 @@ void popBlackFromLink(ProConBlockLink *proConBlockLink) {
 }
 
 void popFrontFromLink(ProConBlockLink *proConBlockLink) {
+    /*
+     * @Param:
+     *  proConBlockLink: process control block link.
+     *
+     * @Description:
+     *  Remove the front process control block in the process control block linked list.
+     */
+
     if (proConBlockLink->headProConBlock->aftProConBlock != NULL) {
         // [h] -> [] <-> [] <-> []
         ProConBlock *aftProConBlock = proConBlockLink->headProConBlock->aftProConBlock->aftProConBlock;
@@ -212,11 +304,24 @@ void popFrontFromLink(ProConBlockLink *proConBlockLink) {
         proConBlockLink->headProConBlock->aftProConBlock = aftProConBlock;
         if (aftProConBlock != NULL) {
             aftProConBlock->perProConBlock = NULL;
+        } else {
+            proConBlockLink->lastProConBlock = NULL;
         }
     }
 }
 
-void priorityInsertLink(ProConBlock *proConBlock, ProConBlockLink *proConBlockLink) {
+void insertToLinkFromParam(ProConBlockLink *proConBlockLink, ProConBlock *proConBlock, Compare compare) {
+    /*
+     * @Param:
+     *  proConBlockLink: process control block link.
+     *  proConBlock: process control block.
+     *  compare: The contrast function used to determine the collation.
+     *
+     * @Description:
+     *  When inserting a linked list, insert it to the specified location
+     *  according to the contrast function.
+     */
+
     if (proConBlockLink->headProConBlock->aftProConBlock == NULL) {
         // [] -> []
         proConBlockLink->headProConBlock->aftProConBlock = proConBlock;
@@ -225,11 +330,11 @@ void priorityInsertLink(ProConBlock *proConBlock, ProConBlockLink *proConBlockLi
         // <-[2]->
         // [h] -> [3] <->[2] <-> [1]
         // [h] -> [3] <->[2] <-> [2] <-> [1]
-        if (proConBlock->p_priority >= proConBlockLink->headProConBlock->aftProConBlock->p_priority) {
+        if (compare(proConBlock, proConBlockLink->headProConBlock->aftProConBlock)) {
             pushToLink(proConBlock, proConBlockLink);
         } else {
             ProConBlock *temp = proConBlockLink->headProConBlock->aftProConBlock->aftProConBlock;
-            while (temp != NULL && temp->p_priority > proConBlock->p_priority) {
+            while (temp != NULL && compare(temp, proConBlock)) {
                 temp = temp->aftProConBlock;
             }
             if (temp != NULL) {
@@ -249,6 +354,13 @@ void priorityInsertLink(ProConBlock *proConBlock, ProConBlockLink *proConBlockLi
 
 // sort
 void reverseProConBlockFromLink(ProConBlockLink *proConBlockLink) {
+    /*
+     * @Param:
+     *  proConBlockLink: process control block link
+     *
+     * @Description:
+     *  Used reverse process control block from link.
+     */
     ProConBlock *orderProConBlock = proConBlockLink->headProConBlock->aftProConBlock;
     ProConBlock *insertProConBlock = proConBlockLink->lastProConBlock;
     ProConBlock *oldFirstProConBlock = proConBlockLink->headProConBlock->aftProConBlock;
@@ -299,11 +411,29 @@ void reverseProConBlockFromLink(ProConBlockLink *proConBlockLink) {
 }
 
 void firstComeFirstServe(ProConBlockLink *proConBlockLink) {
+    /*
+     * @Param:
+     *  proConBlockLink: process control block link
+     *
+     * @Description:
+     *  process scheduling algorithm first come first server implement.
+     */
+
     reverseProConBlockFromLink(proConBlockLink);
 }
 
 inline static void
 insertProConBlockToSamePriorityAfter(ProConBlockLink *proConBlockLink, ProConBlock *slow, ProConBlock *quick) {
+    /*
+     * @Param:
+     *  proConBlockLink: process control block link.
+     *  slow: process control block, Used to specify the ordered insertion position.
+     *  quick: process control block, used to for each process control block link.
+     *
+     * @Description:
+     *  after inserting the quick process control block into the slow process port to the block.
+     */
+
     // slow   ↓
     // quick  ↓
     // [h] -> [] <-> [] <-> [] <-> [] -> NULL
@@ -331,6 +461,16 @@ insertProConBlockToSamePriorityAfter(ProConBlockLink *proConBlockLink, ProConBlo
 inline static ProConBlock *
 orderProConBlockThroughPriority(ProConBlockLink *proConBlockLink, ProConBlock *slow, ProConBlock *quick,
                                 ProcessPriority priority) {
+    /*
+     * @Param:
+     *  proConBlockLink: process control block link.
+     *  slow: process control block, Used to specify the ordered insertion position.
+     *  quick: process control block, used to for each process control block link.
+     *
+     * @Description:
+     *  Sort the chain of process control blocks by using the priority of process control blocks.
+     */
+
     while (quick != NULL) {
         if (quick->p_priority == priority) {
             if (slow != quick) {
@@ -344,6 +484,14 @@ orderProConBlockThroughPriority(ProConBlockLink *proConBlockLink, ProConBlock *s
 }
 
 void priorityScheduling(ProConBlockLink *proConBlockLink) {
+    /*
+     * @Param:
+     *  proConBlock: process control block.
+     *
+     * @Description:
+     *  The linked list of process control blocks is sorted by the priority of the process control blocks.
+     */
+
     if (proConBlockLink->headProConBlock->aftProConBlock == NULL ||
         proConBlockLink->headProConBlock->aftProConBlock == proConBlockLink->lastProConBlock)
         return;
@@ -362,6 +510,15 @@ void priorityScheduling(ProConBlockLink *proConBlockLink) {
 
 // exe
 void executeOver(ProConBlockLink *proConBlockLink) {
+    /*
+     * @Param:
+     *  proConBlockLink: process control block link.
+     *
+     * @Description:
+     *  All nodes on the process control block linked list are executed sequentially,
+     *  and each process control block is completed before moving back.
+     */
+
     ProConBlock *proConBlock = proConBlockLink->headProConBlock->aftProConBlock;
     while (proConBlock != NULL) {
         printf_s("Start running...\n");
@@ -379,12 +536,30 @@ void executeOver(ProConBlockLink *proConBlockLink) {
 }
 
 inline static ProConBlock *removeNextProConBlockFromLink(ProConBlock *loopLink) {
+    /*
+     * @Param:
+     *  loopLink: member is process control block, process control block loop link.
+     *
+     * @Description:
+     *  Removes the latter process control block in the current loop chain
+     *  from the process control block circular linked list.
+     */
+
     loopLink->perProConBlock->aftProConBlock = loopLink->aftProConBlock;
     loopLink->aftProConBlock->perProConBlock = loopLink->perProConBlock;
     return loopLink;
 }
 
 ProConBlock *runningProConBlockTask(ProConBlock *loopLink) {
+    /*
+     * @Param:
+     *  loopLink: loop process control block link.
+     *
+     * @Description:
+     *  Call the callback function of the process control block
+     *  and return the current process control block
+     */
+
     printf_s("Start running...\n");
     loopLink->p_state = running;
     displayProConBlock(loopLink);
@@ -414,6 +589,17 @@ ProConBlock *runningProConBlockTask(ProConBlock *loopLink) {
 
 inline static ProConBlock *
 reconfigurationProConBlockLink(ProConBlockLink *proConBlockLink, ProConBlock *finishLink, ProConBlock *cache) {
+    /*
+     * @Param
+     *  proConBlockLink: process control block link.
+     *  finishLink: execute finish process control block link.
+     *  cache: current finish process control block.
+     *
+     * @Description:
+     *  Call the callback function of the process control block and return
+     *  the current process control block
+     */
+
     if (finishLink == NULL) {
         cache->perProConBlock = NULL;
         cache->aftProConBlock = NULL;
@@ -473,10 +659,27 @@ void roundRobinScheduling(ProConBlockLink *proConBlockLink) {
 }
 
 inline static _Bool jobTimeCompare(void *p1, void *p2) {
+    /*
+     * @Param:
+     *  p1: process control block
+     *  p2: process control block
+     *
+     * @Description:
+     *  used compare job time compare.
+     */
+
     return ((ProConBlock *) (p1))->p_total_time < ((ProConBlock *) (p2))->p_total_time;
 }
 
 void shortestJobNext(ProConBlockLink *proConBlockLink) {
+    /*
+     * @Param:
+     *  proConBlockLink: process control block link.
+     *
+     * @Description:
+     *  implement short job next.
+     */
+
     sortLinkFromLinkParam(proConBlockLink, jobTimeCompare);
 }
 
@@ -485,6 +688,15 @@ void runningProConBlockFromLink(
         void(*proSortFunc)(ProConBlockLink *sortLink),
         void (*proExeFunc)(ProConBlockLink *exeLink)
 ) {
+    /*
+     * @Param:
+     *  proConBlockLink: process control block link
+     *  proSortFunc: process control block sort function.
+     *  proExeFunc: process control block execute function.
+     *
+     * @Description:
+     *  running process control block link through used sort function and execute function.
+     */
     // order execute process link once
     proSortFunc = proSortFunc != NULL ? proSortFunc : firstComeFirstServe;
     proExeFunc = proExeFunc != NULL ? proExeFunc : executeOver;
@@ -494,6 +706,13 @@ void runningProConBlockFromLink(
 }
 
 void displayProConBlockLink(ProConBlockLink *proConBlockLink) {
+    /*
+     * @Param:
+     *  proConBlockLink: process control block link.
+     *
+     * @Description:
+     *  used display process control block link.
+     */
     printf_s("#############################################################\n");
     ProConBlock *temp = proConBlockLink->headProConBlock;
     while (temp != NULL) {

@@ -137,8 +137,8 @@ typedef struct ProcessControlBlackLink {
         (state == suspended_blocked) ? "suspended_blocked" : "UNKNOWN" \
 )
 
-#define proPriorityToString(priority) _Generic((priority), \
-    enum ProcessPriority:                                  \
+#define proPriorityToString(priority) _Generic((priority),  \
+    enum ProcessPriority:                                   \
         (priority == low) ? "low":                          \
         (priority == normal) ? "normal":                    \
         (priority == high) ? "high":                        \
@@ -166,7 +166,7 @@ extern void displayProConBlockLink(ProConBlockLink *proConBlockLink);
 
 extern void destroyProConBlockLink(ProConBlockLink *proConBlockLink);
 
-extern void priorityInsertLink(ProConBlock *proConBlock, ProConBlockLink *proConBlockLink);
+extern void insertToLinkFromParam(ProConBlockLink *proConBlockLink, ProConBlock *proConBlock, Compare compare);
 
 extern void sortLinkFromLinkParam(ProConBlockLink *proConBlockLink, Compare compare);
 
