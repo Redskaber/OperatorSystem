@@ -23,14 +23,14 @@
 
 
 
-static ProConBlock *headProConBlock() {
+static ProConBlock *headProConBlock(Allocator *allocator) {
     /*
      * @Description:
      *  Create a header node that does not have any control function to
      *  facilitate the processing of linked lists.
      */
 
-    ProConBlock *head = (ProConBlock *) malloc(sizeof(ProConBlock));
+    ProConBlock *head = allocator->allocate(allocator, sizeof(ProConBlock));
     head->p_id = 0x0;
     head->p_name = "HEAD";
     head->p_state = new;
@@ -47,7 +47,8 @@ static ProConBlock *headProConBlock() {
 
 
 ProConBlock *
-initProConBlock(int p_id, char *p_name, double p_total_time, ProcessPriority p_priority, CallBack callBack) {
+initProConBlock(int p_id, char *p_name, double p_total_time, ProcessPriority p_priority, CallBack callBack,
+                Allocator *allocator) {
     /*
      * @Param:
      *  p_id: process id
@@ -60,7 +61,7 @@ initProConBlock(int p_id, char *p_name, double p_total_time, ProcessPriority p_p
      *  Used to create a PCB node and return a pointer of that type.
      */
 
-    ProConBlock *newProConBlock = headProConBlock();
+    ProConBlock *newProConBlock = headProConBlock(allocator);
 
     newProConBlock->p_id = p_id;
     newProConBlock->p_name = p_name;
@@ -78,7 +79,7 @@ initProConBlock(int p_id, char *p_name, double p_total_time, ProcessPriority p_p
     return newProConBlock;
 }
 
-void destroyProConBlock(ProConBlock *proConBlock) {
+void destroyProConBlock(ProConBlock *proConBlock, Allocator *allocator) {
     /*
      * @Param:
      *  proConBlock: destroy process control block.
@@ -89,9 +90,9 @@ void destroyProConBlock(ProConBlock *proConBlock) {
 
     if (proConBlock != NULL) {
         if (proConBlock->aftProConBlock != NULL) {
-            destroyProConBlock(proConBlock->aftProConBlock);
+            destroyProConBlock(proConBlock->aftProConBlock, allocator);
         }
-        free(proConBlock);
+        allocator->deallocate(allocator, proConBlock, sizeof(ProConBlock));
         proConBlock = NULL;
 
     }
@@ -118,21 +119,21 @@ void displayProConBlock(ProConBlock *proConBlock) {
 }
 
 
-ProConBlockLink *initProConBlockLink() {
+ProConBlockLink *initProConBlockLink(Allocator *allocator) {
     /*
      * @Description:
      *  used init process control block link.
      */
-
     ProConBlockLink *newProConBlockLink = NULL;
-    newProConBlockLink = (ProConBlockLink *) malloc(sizeof(ProConBlockLink));
-    newProConBlockLink->headProConBlock = headProConBlock();
+//    newProConBlockLink = (ProConBlockLink *) malloc(sizeof(ProConBlockLink));
+    newProConBlockLink = allocator->allocate(allocator, sizeof(ProConBlockLink));
+    newProConBlockLink->headProConBlock = headProConBlock(allocator);
     newProConBlockLink->lastProConBlock = newProConBlockLink->headProConBlock;
 
     return newProConBlockLink;
 }
 
-void destroyProConBlockLink(ProConBlockLink *proConBlockLink) {
+void destroyProConBlockLink(ProConBlockLink *proConBlockLink, Allocator *allocator) {
     /*
      * @Param:
      *  proConBlockLink: process control block link.
@@ -142,8 +143,8 @@ void destroyProConBlockLink(ProConBlockLink *proConBlockLink) {
      */
 
     if (proConBlockLink != NULL) {
-        destroyProConBlock(proConBlockLink->headProConBlock);
-        free(proConBlockLink);
+        destroyProConBlock(proConBlockLink->headProConBlock, allocator);
+        allocator->deallocate(allocator, proConBlockLink, sizeof(ProConBlockLink));
     }
 }
 
@@ -260,7 +261,7 @@ void sortLinkFromLinkParam(ProConBlockLink *proConBlockLink, Compare compare) {
 }
 
 
-void popBlackFromLink(ProConBlockLink *proConBlockLink) {
+void popBlackFromLink(ProConBlockLink *proConBlockLink, Allocator *allocator) {
     /*
      * @Param:
      *  proConBlockLink: process control block link.
@@ -274,20 +275,20 @@ void popBlackFromLink(ProConBlockLink *proConBlockLink) {
             // [h] -> [] <-> [] <-> []
             ProConBlock *popProConBlock = proConBlockLink->lastProConBlock;
             ProConBlock *perProConBlock = popProConBlock->perProConBlock;
-            destroyProConBlock(popProConBlock);
+            destroyProConBlock(popProConBlock, allocator);
 
             perProConBlock->aftProConBlock = NULL;
             proConBlockLink->lastProConBlock = perProConBlock;
         } else {
             // [h] -> []
-            destroyProConBlock(proConBlockLink->headProConBlock->aftProConBlock);
+            destroyProConBlock(proConBlockLink->headProConBlock->aftProConBlock, allocator);
             proConBlockLink->headProConBlock->aftProConBlock = NULL;
             proConBlockLink->lastProConBlock = NULL;
         }
     }
 }
 
-void popFrontFromLink(ProConBlockLink *proConBlockLink) {
+void popFrontFromLink(ProConBlockLink *proConBlockLink, Allocator *allocator) {
     /*
      * @Param:
      *  proConBlockLink: process control block link.
@@ -300,7 +301,7 @@ void popFrontFromLink(ProConBlockLink *proConBlockLink) {
         // [h] -> [] <-> [] <-> []
         ProConBlock *aftProConBlock = proConBlockLink->headProConBlock->aftProConBlock->aftProConBlock;
         proConBlockLink->headProConBlock->aftProConBlock->aftProConBlock = NULL;
-        destroyProConBlock(proConBlockLink->headProConBlock->aftProConBlock);
+        destroyProConBlock(proConBlockLink->headProConBlock->aftProConBlock, allocator);
         proConBlockLink->headProConBlock->aftProConBlock = aftProConBlock;
         if (aftProConBlock != NULL) {
             aftProConBlock->perProConBlock = NULL;

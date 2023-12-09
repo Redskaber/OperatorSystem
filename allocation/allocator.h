@@ -6,4 +6,27 @@
 #ifndef OPERATORSYSTEM_ALLOCATOR_H
 #define OPERATORSYSTEM_ALLOCATOR_H
 
+/*
+ 动态资源分配
+
+
+
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif //OPERATORSYSTEM_ALLOCATOR_H

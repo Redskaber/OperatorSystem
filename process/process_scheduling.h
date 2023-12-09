@@ -70,15 +70,18 @@
 #include <memory.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <unistd.h>
 #include <stdarg.h>
-#include <assert.h>
+#include <string.h>
+#include "../allocator/memory.h"
 
+
+#define ALLOCATE_TOTAL_SIZE 1000
 #define TIME_SLICE  5
 
 typedef void *(*CallBack)(void *args);
 
 typedef _Bool (*Compare)(void *a, void *b);
+
 
 // 进程状态
 typedef enum ProcessState {
@@ -147,24 +150,25 @@ typedef struct ProcessControlBlackLink {
 
 
 extern ProConBlock *
-initProConBlock(int p_id, char *p_name, double p_total_time, ProcessPriority p_priority, CallBack callBack);
+initProConBlock(int p_id, char *p_name, double p_total_time, ProcessPriority p_priority, CallBack callBack,
+                Allocator *allocator);
 
-extern void destroyProConBlock(ProConBlock *proConBlock);
+extern void destroyProConBlock(ProConBlock *proConBlock, Allocator *allocator);
 
 extern void displayProConBlock(ProConBlock *proConBlock);
 
 
-extern ProConBlockLink *initProConBlockLink();
+extern ProConBlockLink *initProConBlockLink(Allocator *allocator);
 
 extern void pushToLink(ProConBlock *proConBlock, ProConBlockLink *proConBlockLink);
 
-extern void popBlackFromLink(ProConBlockLink *proConBlockLink);
+extern void popBlackFromLink(ProConBlockLink *proConBlockLink, Allocator *allocator);
 
-extern void popFrontFromLink(ProConBlockLink *proConBlockLink);
+extern void popFrontFromLink(ProConBlockLink *proConBlockLink, Allocator *allocator);
 
 extern void displayProConBlockLink(ProConBlockLink *proConBlockLink);
 
-extern void destroyProConBlockLink(ProConBlockLink *proConBlockLink);
+extern void destroyProConBlockLink(ProConBlockLink *proConBlockLink, Allocator *allocator);
 
 extern void insertToLinkFromParam(ProConBlockLink *proConBlockLink, ProConBlock *proConBlock, Compare compare);
 
