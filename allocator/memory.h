@@ -1,0 +1,9 @@
+/*
+ User: Redskaber
+ Date: 2023/12/8
+ Time: 20:05
+*/
+#ifndef OPERATORSYSTEM_MEMORY_H
+#define OPERATORSYSTEM_MEMORY_H
+
+#endif //OPERATORSYSTEM_MEMORY_H
