@@ -46,7 +46,7 @@ static void deallocate(Allocator *allocator, void *allocate, int size) {
         free(allocate);
         allocator->used -= size;
         allocator->remain += size;
-
+        allocate = NULL;
     }
 }
 

@@ -4,12 +4,15 @@ project(OperatorSystem)
 set(CMAKE_CXX_STANDARD 23)
 
 add_executable(OperatorSystem main.c
-    process/process_scheduling.h process/process_scheduling.c
-        process/test/process_scheduling/test_process_scheduling.c
-        allocation/allocator.c
-        allocation/allocator.h
-        allocation/test/test_allocator.h
-        allocation/test/test_allocator.c
-        allocator/memory.c
-        allocator/memory.h
+    process/process_scheduling.h
+    process/process_scheduling.c
+    process/test/process_scheduling/test_process_scheduling.c
+    allocation/allocator.c
+    allocation/allocator.h
+    allocation/test/test_allocator.h
+    allocation/test/test_allocator.c
+    allocator/memory.c
+    allocator/memory.h
+    allocation/teacher/teacher_template.cpp
+        allocation/teacher/teacher_template.h
 )
