@@ -108,7 +108,8 @@ typedef struct BaseAllocate {
 
 typedef struct BaseAllocateArr {
     BaseAllocate **array;
-    int size;
+    int max_member;
+    int member;
 } BaseAllocateArr;
 
 // 动态分配
@@ -116,7 +117,7 @@ typedef struct AllocatorResource {
     BaseAllocateArr *maxResource;
     BaseAllocateArr *assignedResource;
     BaseAllocateArr *needResource;
-    int length;
+    int size;
 } AllocatorResource;
 
 
@@ -140,6 +141,19 @@ typedef struct BankProConBlock {
 extern SystemResource *
 initSystemResource(Memory m1, Cpu c1, Gpu g1, Swap s1, NetWork n1, File f1, Allocator *allocator);
 
+extern BankProConBlock *initBankProConBlockUsed(ProConBlock *proConBlock, Allocator *allocator);
+
+extern void pushToResourceArr(BaseAllocateArr *destArr, ResourceType resource[2], Allocator *allocator);
+
+extern void
+initAllocatorResourceArr(
+        BankProConBlock *bankProConBlock,
+        ResourceType maxResourceArr[][2],
+        ResourceType assignedResourceArr[][2],
+        int rows,
+        Allocator *allocator
+);
+
 extern void destroySystemResource(SystemResource *systemResource, Allocator *allocator);
 
 extern void displaySystemResource(SystemResource *systemResource);
@@ -150,11 +164,7 @@ extern void destroyBaseAllocate(BaseAllocate *baseAllocate, Allocator *allocator
 
 extern void displayBaseAllocate(BaseAllocate *baseAllocate);
 
-extern BaseAllocateArr *initBaseAllocateArr(Allocator *allocator, int member);
-
 extern void destroyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Allocator *allocator);
-
-extern AllocatorResource *initAllocatorResource(Allocator *allocator);
 
 extern void destroyAllocatorResource(AllocatorResource *allocatorResource, Allocator *allocator);
 

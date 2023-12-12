@@ -7,6 +7,8 @@
 
 static void *allocate(Allocator *allocator, int size);
 
+static void *reallocate(Allocator *allocator, void *oldMemory, size_t OldSize, size_t NewSize);
+
 static void deallocate(Allocator *allocator, void *allocate, int size);
 
 static void display(Allocator *allocator);
@@ -21,6 +23,7 @@ Allocator *createAllocator(int total) {
     newAllocator->remain = total;
 
     newAllocator->allocate = allocate;
+    newAllocator->reallocate = reallocate;
     newAllocator->deallocate = deallocate;
     newAllocator->display = display;
 
@@ -40,6 +43,15 @@ static void *allocate(Allocator *allocator, int size) {
 
     return newAllocate;
 }
+
+static void *reallocate(Allocator *allocator, void *oldMemory, size_t OldSize, size_t NewSize) {
+    void *newMemory = realloc(oldMemory, NewSize);
+    assert(newMemory != NULL);
+    allocator->used += (int) (NewSize - OldSize);
+    allocator->remain -= (int) (NewSize - OldSize);
+    return newMemory;
+}
+
 
 static void deallocate(Allocator *allocator, void *allocate, int size) {
     if (allocate != NULL) {

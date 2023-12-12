@@ -57,49 +57,139 @@ void destroyBaseAllocate(BaseAllocate *baseAllocate, Allocator *allocator) {
 }
 
 void displayBaseAllocate(BaseAllocate *baseAllocate) {
-    printf_s("#########################################\n");
-    printf_s("ResourceType: %s\n", resourceTypeToString(baseAllocate->type));
-    printf_s("number: %d\n", baseAllocate->number);
-    printf_s("#########################################\n");
+    printf_s("###################################\n");
+    printf_s("\tResourceType: %s\n", resourceTypeToString(baseAllocate->type));
+    printf_s("\tnumber: %d\n", baseAllocate->number);
+    printf_s("###################################\n");
 }
 
-BaseAllocateArr *initBaseAllocateArr(Allocator *allocator, int member) {
+static BaseAllocateArr *initBaseAllocateArr(Allocator *allocator, int member) {
     BaseAllocateArr *newBaseAllocateArr = NULL;
     newBaseAllocateArr = allocator->allocate(allocator, sizeof(BaseAllocateArr));
     assert(newBaseAllocateArr != NULL);
-    memset(newBaseAllocateArr, 0, sizeof(BaseAllocateArr));
 
-    newBaseAllocateArr->size = member;
-    newBaseAllocateArr->array = allocator->allocate(allocator, sizeof(BaseAllocate) * member);
+    newBaseAllocateArr->member = 0;
+    newBaseAllocateArr->max_member = member;
+
+    newBaseAllocateArr->array = allocator->allocate(allocator, sizeof(BaseAllocate *) * member);
     assert(newBaseAllocateArr->array != NULL);
+    memset(newBaseAllocateArr->array, 0, sizeof(BaseAllocate *) * member);
 
     return newBaseAllocateArr;
 }
 
 void destroyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Allocator *allocator) {
     if (baseAllocateArr != NULL) {
-        allocator->deallocate(allocator, baseAllocateArr->array, sizeof(BaseAllocate) * baseAllocateArr->size);
+        if (baseAllocateArr->array != NULL) {
+            for (int i = 0; i < baseAllocateArr->member; ++i) {
+                destroyBaseAllocate(baseAllocateArr->array[i], allocator);
+                baseAllocateArr->array[i] = NULL;
+            }
+        }
+        allocator->deallocate(allocator, baseAllocateArr->array, sizeof(BaseAllocate *) * baseAllocateArr->max_member);
         allocator->deallocate(allocator, baseAllocateArr, sizeof(BaseAllocateArr));
     }
 }
 
 
-AllocatorResource *initAllocatorResource(Allocator *allocator) {
+static AllocatorResource *initAllocatorResource(Allocator *allocator) {
     AllocatorResource *newAllocatorResource = NULL;
 
     newAllocatorResource = allocator->allocate(allocator, sizeof(AllocatorResource));
     assert(newAllocatorResource != NULL);
 
-    newAllocatorResource->length = DEFAULT_BASE_ALLOCATE;
-    newAllocatorResource->maxResource = initBaseAllocateArr(allocator, newAllocatorResource->length);
-    newAllocatorResource->assignedResource = initBaseAllocateArr(allocator, newAllocatorResource->length);
-    newAllocatorResource->needResource = initBaseAllocateArr(allocator, newAllocatorResource->length);
+    newAllocatorResource->size = DEFAULT_BASE_ALLOCATE;
+    newAllocatorResource->maxResource = initBaseAllocateArr(allocator, newAllocatorResource->size);
+    newAllocatorResource->assignedResource = initBaseAllocateArr(allocator, newAllocatorResource->size);
+    newAllocatorResource->needResource = initBaseAllocateArr(allocator, newAllocatorResource->size);
 
     assert(newAllocatorResource->maxResource != NULL);
     assert(newAllocatorResource->assignedResource != NULL);
     assert(newAllocatorResource->needResource != NULL);
 
     return newAllocatorResource;
+}
+
+static _Bool upArrCapacity(BaseAllocateArr *destArr, Allocator *allocator) {
+
+    int newMember = destArr->max_member > 0 && destArr->max_member < 10 ? 10 : 2 * destArr->max_member;
+    size_t newSize = newMember * sizeof(BaseAllocate *);
+    size_t oldSize = destArr->max_member * sizeof(BaseAllocate *);
+    BaseAllocate **newArr = allocator->reallocate(allocator, destArr->array, oldSize, newSize);
+    if (newArr == NULL) {
+        return false;
+    }
+    destArr->array = newArr;
+    destArr->max_member = newMember;
+
+    return true;
+}
+
+void pushToResourceArr(BaseAllocateArr *destArr, ResourceType resource[2], Allocator *allocator) {
+    if (destArr->member >= destArr->max_member) {
+        assert(upArrCapacity(destArr, allocator) != true);
+    }
+    destArr->array[destArr->member++] = initBaseAllocate(allocator, resource[0], resource[1]);
+}
+
+
+static void initResourceArr(BaseAllocateArr *destArr, ResourceType resourceArr[][2], int rows, Allocator *allocator) {
+    if (destArr->member + rows >= destArr->max_member) {
+        assert(upArrCapacity(destArr, allocator) != true);
+    }
+
+    BaseAllocate *newTemp = NULL;
+    for (int i = 0; i < rows; ++i) {
+        newTemp = initBaseAllocate(allocator, resourceArr[i][0], resourceArr[i][1]);
+        destArr->array[destArr->member++] = newTemp;
+    }
+}
+
+void initAllocatorResourceArr(
+        BankProConBlock *bankProConBlock,
+        ResourceType maxResourceArr[][2],
+        ResourceType assignedResourceArr[][2],
+        int rows,
+        Allocator *allocator
+) {
+    initResourceArr(bankProConBlock->resource->maxResource, maxResourceArr, rows, allocator);
+    initResourceArr(bankProConBlock->resource->assignedResource, assignedResourceArr, rows, allocator);
+
+    ResourceType needResourceArr[rows][2] = {};
+    for (int i = 0; i < rows; ++i) {
+        needResourceArr[i][0] = maxResourceArr[i][0];
+        needResourceArr[i][1] = maxResourceArr[i][1] - assignedResourceArr[i][1];
+    }
+    initResourceArr(bankProConBlock->resource->needResource, needResourceArr, rows, allocator);
+}
+
+void displayAllocatorResource(AllocatorResource *allocatorResource) {
+    printf_s("###################################\n");
+    printf_s("AllocatorResource:\n");
+
+    printf_s("\tmaxResource:\n\t\t");
+    BaseAllocate *temp = NULL;
+    for (int i = 0; i < allocatorResource->maxResource->member; ++i) {
+        temp = allocatorResource->maxResource->array[i];
+        printf_s("%s|%d\t", resourceTypeToString(temp->type), temp->number);
+    }
+    printf_s("\n");
+
+    printf_s("\tassignedResource:\n\t\t");
+    for (int i = 0; i < allocatorResource->assignedResource->member; ++i) {
+        temp = allocatorResource->assignedResource->array[i];
+        printf_s("%s|%d\t", resourceTypeToString(temp->type), temp->number);
+    }
+    printf_s("\n");
+
+    printf_s("\tneedResource:\n\t\t");
+    for (int i = 0; i < allocatorResource->needResource->member; ++i) {
+        temp = allocatorResource->needResource->array[i];
+        printf_s("%s|%d\t", resourceTypeToString(temp->type), temp->number);
+    }
+    printf_s("\n");
+
+    printf_s("###################################\n");
 }
 
 void destroyAllocatorResource(AllocatorResource *allocatorResource, Allocator *allocator) {
@@ -112,31 +202,7 @@ void destroyAllocatorResource(AllocatorResource *allocatorResource, Allocator *a
     }
 }
 
-void displayAllocatorResource(AllocatorResource *allocatorResource) {
-    int length = allocatorResource->length;
-    printf_s("#########################################\n");
-    printf_s("AllocatorResource:\n");
-
-    printf_s("\tmaxResource:\n");
-    for (int i = 0; i < length; ++i) {
-        displayBaseAllocate(allocatorResource->maxResource->array[i]);
-    }
-
-    printf_s("\tassignedResource:\n");
-    for (int i = 0; i < length; ++i) {
-        displayBaseAllocate(allocatorResource->assignedResource->array[i]);
-    }
-
-    printf_s("\tneedResource:\n");
-    for (int i = 0; i < length; ++i) {
-        displayBaseAllocate(allocatorResource->needResource->array[i]);
-    }
-    printf_s("#########################################\n");
-}
-
-
-BankProConBlock *
-initBankProConBlock(
+BankProConBlock *initBankProConBlock(
         int p_id,
         char *p_name,
         double p_total_time,
@@ -154,6 +220,21 @@ initBankProConBlock(
     return newBankProConBlock;
 }
 
+BankProConBlock *initBankProConBlockUsed(ProConBlock *proConBlock, Allocator *allocator) {
+    BankProConBlock *newBankProConBlock = NULL;
+
+    newBankProConBlock = allocator->allocate(allocator, sizeof(BankProConBlock));
+    assert(newBankProConBlock != NULL);
+    newBankProConBlock->base = proConBlock;
+    newBankProConBlock->resource = initAllocatorResource(allocator);
+
+    return newBankProConBlock;
+}
+
+void displayBankProConBlock(BankProConBlock *bankProConBlock) {
+    displayProConBlock(bankProConBlock->base);
+    displayAllocatorResource(bankProConBlock->resource);
+}
 
 void destroyBankProConBlock(BankProConBlock *bankProConBlock, Allocator *allocator) {
     if (bankProConBlock != NULL) {
@@ -161,12 +242,6 @@ void destroyBankProConBlock(BankProConBlock *bankProConBlock, Allocator *allocat
         destroyAllocatorResource(bankProConBlock->resource, allocator);
         allocator->deallocate(allocator, bankProConBlock, sizeof(BankProConBlock));
     }
-}
-
-
-void displayBankProConBlock(BankProConBlock *bankProConBlock) {
-    displayProConBlock(bankProConBlock->base);
-    displayAllocatorResource(bankProConBlock->resource);
 }
 
 

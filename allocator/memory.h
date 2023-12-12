@@ -25,7 +25,9 @@ typedef struct Allocator {
 
     void *(*allocate)(struct Allocator *allocator, int size);
 
-    void (*deallocate)(struct Allocator* allocator, void *allocate, int size);
+    void *(*reallocate)(struct Allocator *allocator, void *oldMemory, size_t OldSize, size_t NewSize);
+
+    void (*deallocate)(struct Allocator *allocator, void *allocate, int size);
 
     void (*display)(struct Allocator *allocator);
 
