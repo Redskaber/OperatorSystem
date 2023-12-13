@@ -6,38 +6,6 @@
 #include "allocator.h"
 
 
-SystemResource *initSystemResource(Memory m1, Cpu c1, Gpu g1, Swap s1, NetWork n1, File f1, Allocator *allocator) {
-    SystemResource *newSystemResource = NULL;
-    newSystemResource = allocator->allocate(allocator, sizeof(SystemResource));
-    assert(newSystemResource != NULL);
-    newSystemResource->memory = m1;
-    newSystemResource->cpu = c1;
-    newSystemResource->gpu = g1;
-    newSystemResource->swap = s1;
-    newSystemResource->netWork = n1;
-    newSystemResource->file = f1;
-
-    return newSystemResource;
-}
-
-void destroySystemResource(SystemResource *systemResource, Allocator *allocator) {
-    if (systemResource != NULL) {
-        allocator->deallocate(allocator, systemResource, sizeof(SystemResource));
-    }
-}
-
-void displaySystemResource(SystemResource *systemResource) {
-    printf_s("#########################################\n");
-    printf_s("\tmemory: %d \n", systemResource->memory);
-    printf_s("\tcpu: %d \n", systemResource->cpu);
-    printf_s("\tgpu: %d \n", systemResource->gpu);
-    printf_s("\tswap: %d \n", systemResource->swap);
-    printf_s("\tnetWork: %d \n", systemResource->netWork);
-    printf_s("\tfile: %d \n", systemResource->file);
-    printf_s("#########################################\n");
-}
-
-
 BaseAllocate *initBaseAllocate(Allocator *allocator, ResourceType type, int number) {
     BaseAllocate *newBaseAllocate = NULL;
 
@@ -78,7 +46,7 @@ static BaseAllocateArr *initBaseAllocateArr(Allocator *allocator, int member) {
     return newBaseAllocateArr;
 }
 
-void destroyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Allocator *allocator) {
+static void destroyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Allocator *allocator) {
     if (baseAllocateArr != NULL) {
         if (baseAllocateArr->array != NULL) {
             for (int i = 0; i < baseAllocateArr->member; ++i) {
@@ -192,7 +160,7 @@ void displayAllocatorResource(AllocatorResource *allocatorResource) {
     printf_s("###################################\n");
 }
 
-void destroyAllocatorResource(AllocatorResource *allocatorResource, Allocator *allocator) {
+static void destroyAllocatorResource(AllocatorResource *allocatorResource, Allocator *allocator) {
     if (allocatorResource != NULL) {
         destroyBaseAllocateArr(allocatorResource->maxResource, allocator);
         destroyBaseAllocateArr(allocatorResource->assignedResource, allocator);

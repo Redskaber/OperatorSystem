@@ -13,28 +13,49 @@
     - remain
  */
 #include <stdio.h>
-#include <malloc.h>
-#include <memory.h>
 #include <assert.h>
+#include "memory/memory_allocator.h"
+#include "cpu/memory_cpu.h"
+#include "gpu/memory_gpu.h"
+#include "swap/memory_swap.h"
 
 
-typedef struct Allocator {
-    int total;
-    int used;
-    int remain;
+typedef enum ResourceType {
+    memory,
+    cpu,
+    gpu,
+    swap,
+    network,
+    file
+} ResourceType;
 
-    void *(*allocate)(struct Allocator *allocator, int size);
 
-    void *(*reallocate)(struct Allocator *allocator, void *oldMemory, size_t OldSize, size_t NewSize);
+typedef struct SystemResource {
+    Allocator *memory;
+    Cpu *cpu;
+    Gpu *gpu;
+    Swap *swap;
 
-    void (*deallocate)(struct Allocator *allocator, void *allocate, int size);
+    int netWork;
+    int file;
 
-    void (*display)(struct Allocator *allocator);
+} SystemResource;
 
-} Allocator;
 
-extern Allocator *createAllocator(int total);
+#define resourceTypeToString(type) _Generic((type), \
+    enum ResourceType:                              \
+        (type == memory) ? "memory":                \
+        (type == cpu) ? "cpu":                      \
+        (type == gpu) ? "gpu":                      \
+        (type == swap) ?"swap":                     \
+        (type == network) ? "network":              \
+        (type == file) ? "file":"Unknown"           \
+)
 
-extern void destroy(Allocator *allocator);
+extern SystemResource *initSystemResource(int m1, int c1, int g1, int s1, int n1, int f1);
+
+extern void destroySystemResource(SystemResource *systemResource);
+
+extern void displaySystemResource(SystemResource *systemResource);
 
 #endif //OPERATORSYSTEM_MEMORY_H

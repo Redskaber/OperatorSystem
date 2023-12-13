@@ -5,75 +5,48 @@
 */
 #include "memory.h"
 
-static void *allocate(Allocator *allocator, int size);
+SystemResource *initSystemResource(int m1, int c1, int g1, int s1, int n1, int f1) {
+    SystemResource *newSystemResource = NULL;
+    newSystemResource = malloc(sizeof(SystemResource));
+    assert(newSystemResource != NULL);
+    newSystemResource->memory = createAllocator(m1);
+    newSystemResource->cpu = createCpu(c1);
+    newSystemResource->gpu = createGpu(g1);
+    newSystemResource->swap = createSwap(s1);
+    newSystemResource->netWork = n1;
+    newSystemResource->file = f1;
 
-static void *reallocate(Allocator *allocator, void *oldMemory, size_t OldSize, size_t NewSize);
 
-static void deallocate(Allocator *allocator, void *allocate, int size);
-
-static void display(Allocator *allocator);
-
-
-Allocator *createAllocator(int total) {
-    Allocator *newAllocator = NULL;
-    newAllocator = (Allocator *) malloc(sizeof(Allocator));
-
-    newAllocator->total = total;
-    newAllocator->used = 0;
-    newAllocator->remain = total;
-
-    newAllocator->allocate = allocate;
-    newAllocator->reallocate = reallocate;
-    newAllocator->deallocate = deallocate;
-    newAllocator->display = display;
-
-    return newAllocator;
+    return newSystemResource;
 }
 
-
-static void *allocate(Allocator *allocator, int size) {
-
-    assert(size <= allocator->remain);
-
-    void *newAllocate = malloc(size);
-    memset(newAllocate, 0, size);
-
-    allocator->used += size;
-    allocator->remain -= size;
-
-    return newAllocate;
-}
-
-static void *reallocate(Allocator *allocator, void *oldMemory, size_t OldSize, size_t NewSize) {
-    void *newMemory = realloc(oldMemory, NewSize);
-    assert(newMemory != NULL);
-    allocator->used += (int) (NewSize - OldSize);
-    allocator->remain -= (int) (NewSize - OldSize);
-    return newMemory;
-}
-
-
-static void deallocate(Allocator *allocator, void *allocate, int size) {
-    if (allocate != NULL) {
-        free(allocate);
-        allocator->used -= size;
-        allocator->remain += size;
-        allocate = NULL;
+void destroySystemResource(SystemResource *systemResource) {
+    if (systemResource != NULL) {
+        destroyAllocator(systemResource->memory);
+        destroyCpu(systemResource->cpu);
+        destroyGpu(systemResource->gpu);
+        destroySwap(systemResource->swap);
+        free(systemResource);
+        systemResource = NULL;
     }
 }
 
-static void display(Allocator *allocator) {
-    printf_s("########################################\n");
-    printf_s("Allocator:\n");
-    printf_s("\ttotal: %d\n", allocator->total);
-    printf_s("\tused: %d\n", allocator->used);
-    printf_s("\tremain: %d\n", allocator->remain);
-    printf_s("########################################\n");
+void displaySystemResource(SystemResource *systemResource) {
+    printf_s("#########################################\n");
+    printf_s("\tmemory: \n\t\t%d|%d|%d\n",
+             systemResource->memory->total, systemResource->memory->used, systemResource->memory->remain);
+    printf_s("\tcpu: \n\t\t%d|%d|%d\n",
+             systemResource->cpu->total, systemResource->cpu->used, systemResource->cpu->remain);
+    printf_s("\tgpu: \n\t\t%d|%d|%d\n",
+             systemResource->gpu->total, systemResource->gpu->used, systemResource->gpu->remain);
+    printf_s("\tswap: \n\t\t%d|%d|%d\n",
+             systemResource->swap->total, systemResource->swap->used, systemResource->swap->remain);
+    printf_s("\tnetWork: %d \n", systemResource->netWork);
+    printf_s("\tfile: %d \n", systemResource->file);
+    printf_s("#########################################\n");
 }
 
 
-void destroy(Allocator *allocator) {
-    if (allocator != NULL) {
-        free(allocator);
-    }
-}
+
+
+

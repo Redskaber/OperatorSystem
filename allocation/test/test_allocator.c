@@ -12,19 +12,16 @@ static void *proCallBack(void *args) {
 }
 
 
-static SystemResource *createSystemResource(Allocator *allocator) {
-    SystemResource *sr = initSystemResource(ALLOCATE_TOTAL_SIZE, 1000, 1000, 200, 100, 500, allocator);
+static SystemResource *createSystemResource() {
+    SystemResource *sr = initSystemResource(ALLOCATE_TOTAL_SIZE, 1000, 1000, 200, 100, 500);
     return sr;
 }
 
 
 void test_allocator() {
-    Allocator *allocator = createAllocator(ALLOCATE_TOTAL_SIZE);
-    allocator->display(allocator);
-
-    SystemResource *sr = createSystemResource(allocator);
+    SystemResource *sr = createSystemResource();
     displaySystemResource(sr);
-    allocator->display(allocator);
+    sr->memory->display(sr->memory);
 
 
     ProConBlock *proConBlock = initProConBlock(
@@ -32,8 +29,8 @@ void test_allocator() {
             "process-0x0001",
             50,
             normal,
-            proCallBack, allocator);
-    BankProConBlock *bank_pcb = initBankProConBlockUsed(proConBlock, allocator);
+            proCallBack, sr->memory);
+    BankProConBlock *bank_pcb = initBankProConBlockUsed(proConBlock, sr->memory);
     displayBankProConBlock(bank_pcb);
 
     ResourceType maxResource[4][2] = {
@@ -46,14 +43,18 @@ void test_allocator() {
             {cpu,     3},
             {gpu,     5},
             {network, 2}};
-    initAllocatorResourceArr(bank_pcb, maxResource, assignedResource, 4, allocator);
+    initAllocatorResourceArr(
+            bank_pcb,
+            maxResource,
+            assignedResource,
+            4, sr->memory);
     displayBankProConBlock(bank_pcb);
-    allocator->display(allocator);
+    sr->memory->display(sr->memory);
 
-    destroyBankProConBlock(bank_pcb, allocator);
-    allocator->display(allocator);
+    destroyBankProConBlock(bank_pcb, sr->memory);
+    sr->memory->display(sr->memory);
 
-    destroySystemResource(sr, allocator);
-    allocator->display(allocator);
+    destroySystemResource(sr);
+    sr->memory->display(sr->memory);
 
 }

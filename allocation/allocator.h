@@ -73,33 +73,6 @@
 
 #define DEFAULT_BASE_ALLOCATE 5
 
-typedef int Memory;
-typedef int Cpu;
-typedef int Gpu;
-typedef int Swap;
-typedef int NetWork;
-typedef int File;
-
-
-typedef enum ResourceType {
-    memory,
-    cpu,
-    gpu,
-    swap,
-    network,
-    file
-} ResourceType;
-
-
-typedef struct SystemResource {
-    Memory memory;
-    Cpu cpu;
-    Gpu gpu;
-    Swap swap;
-    NetWork netWork;
-    File file;
-} SystemResource;
-
 
 typedef struct BaseAllocate {
     ResourceType type;
@@ -127,20 +100,6 @@ typedef struct BankProConBlock {
 } BankProConBlock;
 
 
-#define resourceTypeToString(type) _Generic((type), \
-    enum ResourceType:                              \
-        (type == memory) ? "memory":                \
-        (type == cpu) ? "cpu":                      \
-        (type == gpu) ? "gpu":                      \
-        (type == swap) ?"swap":                     \
-        (type == network) ? "network":              \
-        (type == file) ? "file":"Unknown"           \
-)
-
-
-extern SystemResource *
-initSystemResource(Memory m1, Cpu c1, Gpu g1, Swap s1, NetWork n1, File f1, Allocator *allocator);
-
 extern BankProConBlock *initBankProConBlockUsed(ProConBlock *proConBlock, Allocator *allocator);
 
 extern void pushToResourceArr(BaseAllocateArr *destArr, ResourceType resource[2], Allocator *allocator);
@@ -154,19 +113,11 @@ initAllocatorResourceArr(
         Allocator *allocator
 );
 
-extern void destroySystemResource(SystemResource *systemResource, Allocator *allocator);
-
-extern void displaySystemResource(SystemResource *systemResource);
-
 extern BaseAllocate *initBaseAllocate(Allocator *allocator, ResourceType type, int number);
 
 extern void destroyBaseAllocate(BaseAllocate *baseAllocate, Allocator *allocator);
 
 extern void displayBaseAllocate(BaseAllocate *baseAllocate);
-
-extern void destroyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Allocator *allocator);
-
-extern void destroyAllocatorResource(AllocatorResource *allocatorResource, Allocator *allocator);
 
 extern void displayAllocatorResource(AllocatorResource *allocatorResource);
 
