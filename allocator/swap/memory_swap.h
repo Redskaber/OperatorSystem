@@ -14,22 +14,23 @@
 #include <memory.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "../memory//memory_allocator.h"
 
 typedef struct Swap {
     int total;
     int used;
     int remain;
 
-    _Bool (*getRunningSpace)(struct Swap *Swap, int member);
+    _Bool (*getRunningSpace)(struct Swap *swap, int member);
 
-    _Bool (*freeRunningSpace)(struct Swap *Swap, int remember);
+    _Bool (*freeRunningSpace)(struct Swap *swap, int remember);
 
-    void (*display)(const struct Swap *Swap);
+    void (*display)(const struct Swap *swap);
 
 } Swap;
 
-extern Swap *createSwap(int total);
+extern Swap *createSwap(int total, Allocator* allocator);
 
-extern void destroySwap(Swap *Swap);
+extern void destroySwap(Swap *swap, Allocator* allocator);
 
 #endif //OPERATORSYSTEM_MEMORY_SWAP_H

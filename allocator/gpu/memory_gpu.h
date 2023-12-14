@@ -14,22 +14,23 @@
 #include <memory.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "../memory/memory_allocator.h"
 
 typedef struct Gpu {
     int total;
     int used;
     int remain;
 
-    _Bool (*getRunningSpace)(struct Gpu *Gpu, int member);
+    _Bool (*getRunningSpace)(struct Gpu *gpu, int member);
 
-    _Bool (*freeRunningSpace)(struct Gpu *Gpu, int remember);
+    _Bool (*freeRunningSpace)(struct Gpu *gpu, int remember);
 
-    void (*display)(const struct Gpu *Gpu);
+    void (*display)(const struct Gpu *gpu);
 
 } Gpu;
 
-extern Gpu *createGpu(int total);
+extern Gpu *createGpu(int total, Allocator* allocator);
 
-extern void destroyGpu(Gpu *Gpu);
+extern void destroyGpu(Gpu *gpu, Allocator* allocator);
 
 #endif //OPERATORSYSTEM_MEMORY_GPU_H

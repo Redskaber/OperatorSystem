@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <memory.h>
 #include <assert.h>
+#define ALLOCATE_TOTAL_SIZE 1000
 
 typedef struct Allocator {
     int total;

@@ -11,10 +11,10 @@ static _Bool freeRunningSpace(Cpu *cpu, int remember);
 
 static void display(const Cpu *cpu);
 
-Cpu *createCpu(int total) {
+Cpu *createCpu(int total, Allocator *allocator) {
 
     Cpu *newCpu = NULL;
-    newCpu = (Cpu *) malloc(sizeof(Cpu));
+    newCpu = allocator->allocate(allocator, sizeof(Cpu));
     assert(newCpu != NULL);
 
     newCpu->total = total;
@@ -55,8 +55,9 @@ static void display(const Cpu *cpu) {
     printf_s("########################################\n");
 }
 
-void destroyCpu(Cpu *cpu) {
+void destroyCpu(Cpu *cpu, Allocator *allocator) {
     if (cpu != NULL) {
-        free(cpu);
+        allocator->deallocate(allocator, cpu, sizeof(Cpu));
+        cpu = NULL;
     }
 }

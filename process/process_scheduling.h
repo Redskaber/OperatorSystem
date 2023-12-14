@@ -72,10 +72,8 @@
 #include <stdbool.h>
 #include <stdarg.h>
 #include <string.h>
-#include "../allocator/memory.h"
+#include "../allocator/systemResource.h"
 
-
-#define ALLOCATE_TOTAL_SIZE 1000
 #define TIME_SLICE  5
 
 typedef void *(*CallBack)(void *args);

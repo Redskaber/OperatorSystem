@@ -30,6 +30,7 @@ void test_allocator() {
             50,
             normal,
             proCallBack, sr->memory);
+    sr->memory->display(sr->memory);
     BankProConBlock *bank_pcb = initBankProConBlockUsed(proConBlock, sr->memory);
     displayBankProConBlock(bank_pcb);
 
@@ -47,7 +48,7 @@ void test_allocator() {
             bank_pcb,
             maxResource,
             assignedResource,
-            4, sr->memory);
+            4, sr);
     displayBankProConBlock(bank_pcb);
     sr->memory->display(sr->memory);
 
@@ -55,6 +56,6 @@ void test_allocator() {
     sr->memory->display(sr->memory);
 
     destroySystemResource(sr);
-    sr->memory->display(sr->memory);
+//    sr->memory->display(sr->memory);
 
 }

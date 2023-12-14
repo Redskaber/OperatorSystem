@@ -14,6 +14,7 @@
 #include <memory.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "../memory/memory_allocator.h"
 
 typedef struct Cpu {
     int total;
@@ -28,8 +29,8 @@ typedef struct Cpu {
 
 } Cpu;
 
-extern Cpu *createCpu(int total);
+extern Cpu *createCpu(int total, Allocator* allocator);
 
-extern void destroyCpu(Cpu *cpu);
+extern void destroyCpu(Cpu *cpu, Allocator* allocator);
 
 #endif //OPERATORSYSTEM_MEMORY_CPU_H

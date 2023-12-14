@@ -5,9 +5,7 @@
 */
 #ifndef OPERATORSYSTEM_TEST_ALLOCATOR_H
 #define OPERATORSYSTEM_TEST_ALLOCATOR_H
-
-#include "../../allocator/memory.h"
-#include "../allocator.h"
+#include "../banker.h"
 
 extern void test_allocator();
 

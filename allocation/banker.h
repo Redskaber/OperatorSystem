@@ -3,8 +3,8 @@
  Date: 2023/12/7
  Time: 15:13
 */
-#ifndef OPERATORSYSTEM_ALLOCATOR_H
-#define OPERATORSYSTEM_ALLOCATOR_H
+#ifndef OPERATORSYSTEM_BANKER_H
+#define OPERATORSYSTEM_BANKER_H
 
 /*动态资源分配
     银行家算法：
@@ -67,31 +67,9 @@
                 deallocate ...
  */
 #include <assert.h>
-#include "../allocator/memory.h"
+#include "base/resource_allocate.h"
+#include "../allocator/systemResource.h"
 #include "../process/process_scheduling.h"
-
-
-#define DEFAULT_BASE_ALLOCATE 5
-
-
-typedef struct BaseAllocate {
-    ResourceType type;
-    int number;
-} BaseAllocate;
-
-typedef struct BaseAllocateArr {
-    BaseAllocate **array;
-    int max_member;
-    int member;
-} BaseAllocateArr;
-
-// 动态分配
-typedef struct AllocatorResource {
-    BaseAllocateArr *maxResource;
-    BaseAllocateArr *assignedResource;
-    BaseAllocateArr *needResource;
-    int size;
-} AllocatorResource;
 
 
 typedef struct BankProConBlock {
@@ -99,30 +77,13 @@ typedef struct BankProConBlock {
     AllocatorResource *resource;
 } BankProConBlock;
 
+typedef struct Banker {
+    BankProConBlock **array;
+    BaseAllocateArr *availableResource;
+} Banker;
 
-extern BankProConBlock *initBankProConBlockUsed(ProConBlock *proConBlock, Allocator *allocator);
 
-extern void pushToResourceArr(BaseAllocateArr *destArr, ResourceType resource[2], Allocator *allocator);
-
-extern void
-initAllocatorResourceArr(
-        BankProConBlock *bankProConBlock,
-        ResourceType maxResourceArr[][2],
-        ResourceType assignedResourceArr[][2],
-        int rows,
-        Allocator *allocator
-);
-
-extern BaseAllocate *initBaseAllocate(Allocator *allocator, ResourceType type, int number);
-
-extern void destroyBaseAllocate(BaseAllocate *baseAllocate, Allocator *allocator);
-
-extern void displayBaseAllocate(BaseAllocate *baseAllocate);
-
-extern void displayAllocatorResource(AllocatorResource *allocatorResource);
-
-extern BankProConBlock *
-initBankProConBlock(
+extern BankProConBlock *initBankProConBlock(
         int p_id,
         char *p_name,
         double p_total_time,
@@ -131,8 +92,22 @@ initBankProConBlock(
         Allocator *allocator
 );
 
-extern void destroyBankProConBlock(BankProConBlock *bankProConBlock, Allocator *allocator);
+extern BankProConBlock *initBankProConBlockUsed(ProConBlock *proConBlock, Allocator *allocator);
+
+extern void initAllocatorResourceArr(
+        BankProConBlock *bankProConBlock,
+        ResourceType maxResourceArr[][2],
+        ResourceType assignedResourceArr[][2],
+        int rows,
+        SystemResource *systemResource
+);
+
+extern void pushToResourceArr(BaseAllocateArr *destArr, ResourceType resource[2], Allocator *allocator);
+
+extern void displayAllocatorResource(AllocatorResource *allocatorResource);
 
 extern void displayBankProConBlock(BankProConBlock *bankProConBlock);
 
-#endif //OPERATORSYSTEM_ALLOCATOR_H
+extern void destroyBankProConBlock(BankProConBlock *bankProConBlock, Allocator *allocator);
+
+#endif //OPERATORSYSTEM_BANKER_H
