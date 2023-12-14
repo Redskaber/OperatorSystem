@@ -116,17 +116,52 @@ void destroyBankProConBlock(BankProConBlock *bankProConBlock, Allocator *allocat
     }
 }
 
+Banker *initBanker(
+        ResourceType availableResourceArr[][2],
+        int rows,
+        SystemResource *systemResource
+) {
+    Banker *newBanker = NULL;
 
+    newBanker = systemResource->memory->allocate(systemResource->memory, sizeof(Banker));
+    assert(newBanker != NULL);
 
+    newBanker->size = 0;
+    newBanker->maxSize = BANKER_INIT_ARRAY_MEMBER;
+    int initSize = sizeof(BankProConBlock *) * newBanker->maxSize;
+    newBanker->array = systemResource->memory->allocate(systemResource->memory, initSize);
+    assert(newBanker->array != NULL);
 
+    newBanker->availableResource = initBaseAllocateArr(systemResource->memory, newBanker->maxSize);
 
+    initResourceArr(
+            newBanker->availableResource,
+            availableResourceArr, rows,
+            systemResource->memory
+    );
 
+    return newBanker;
+}
 
+void destroyBanker(Banker *banker, SystemResource *systemResource) {
+    if (banker != NULL) {
+        if (banker->array != NULL) {
+            for (int i = 0; i < banker->size; ++i) {
+                destroyBankProConBlock(banker->array[i], systemResource->memory);
+                banker->array[i] = NULL;
+            }
+            int arrSize = sizeof(BankProConBlock *) * banker->maxSize;
+            systemResource->memory->deallocate(systemResource->memory, banker->array, arrSize);
+        }
+        destroyBaseAllocateArr(banker->availableResource, systemResource->memory);
+        systemResource->memory->deallocate(systemResource->memory, banker, sizeof(Banker));
+        banker = NULL;
+    }
+}
 
-
-
-
-
-
-
-
+void pushProConBlockToBanker(Banker *banker, BankProConBlock *bankProConBlock) {
+    if (banker->size >= banker->maxSize) {
+        // banker->array up capacity;
+    }
+    banker->array[banker->size++] = bankProConBlock;
+}

@@ -5,7 +5,7 @@
 */
 #ifndef OPERATORSYSTEM_BANKER_H
 #define OPERATORSYSTEM_BANKER_H
-
+#define BANKER_INIT_ARRAY_MEMBER 5
 /*动态资源分配
     银行家算法：
         1.银行家算法（Banker's Algorithm）是一种用于避免死锁（Deadlock）的资源分配算法，特别是在多进程共享有限资源的情况下。
@@ -80,6 +80,8 @@ typedef struct BankProConBlock {
 typedef struct Banker {
     BankProConBlock **array;
     BaseAllocateArr *availableResource;
+    int size;
+    int maxSize;
 } Banker;
 
 
@@ -109,5 +111,15 @@ extern void displayAllocatorResource(AllocatorResource *allocatorResource);
 extern void displayBankProConBlock(BankProConBlock *bankProConBlock);
 
 extern void destroyBankProConBlock(BankProConBlock *bankProConBlock, Allocator *allocator);
+
+extern Banker *initBanker(
+        ResourceType availableResourceArr[][2],
+        int rows,
+        SystemResource *systemResource
+);
+
+extern void destroyBanker(Banker *banker, SystemResource *systemResource);
+
+extern void pushProConBlockToBanker(Banker *banker, BankProConBlock *bankProConBlock);
 
 #endif //OPERATORSYSTEM_BANKER_H

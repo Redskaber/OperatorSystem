@@ -41,7 +41,8 @@ BaseAllocateArr *initBaseAllocateArr(Allocator *allocator, int member) {
     newBaseAllocateArr->member = 0;
     newBaseAllocateArr->max_member = member;
 
-    newBaseAllocateArr->array = allocator->allocate(allocator, sizeof(BaseAllocate *) * member);
+    int initSize = sizeof(BaseAllocate *) * newBaseAllocateArr->max_member;
+    newBaseAllocateArr->array = allocator->allocate(allocator, initSize);
     assert(newBaseAllocateArr->array != NULL);
     memset(newBaseAllocateArr->array, 0, sizeof(BaseAllocate *) * member);
 
@@ -63,7 +64,12 @@ void destroyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Allocator *allocat
     }
 }
 
-void initResourceArr(BaseAllocateArr *destArr, ResourceType resourceArr[][2], int rows, Allocator *allocator) {
+void initResourceArr(
+        BaseAllocateArr *destArr,
+        ResourceType resourceArr[][2],
+        int rows,
+        Allocator *allocator
+) {
     if (destArr->member + rows >= destArr->max_member) {
         assert(upArrCapacity(destArr, allocator) != true);
     }
@@ -75,6 +81,18 @@ void initResourceArr(BaseAllocateArr *destArr, ResourceType resourceArr[][2], in
     }
 }
 
+void displayBaseAllocateArr(BaseAllocateArr *baseAllocateArr) {
+    printf_s("###################################\n");
+    for (int i = 0; i < baseAllocateArr->member; ++i) {
+        printf_s("[%s, %d] ",
+                 resourceTypeToString(baseAllocateArr->array[i]->type),
+                 baseAllocateArr->array[i]->number
+        );
+    }
+    printf_s("\n");
+    printf_s("###################################\n");
+
+}
 
 void pushToResourceArr(BaseAllocateArr *destArr, ResourceType resource[2], Allocator *allocator) {
     if (destArr->member >= destArr->max_member) {
@@ -82,7 +100,6 @@ void pushToResourceArr(BaseAllocateArr *destArr, ResourceType resource[2], Alloc
     }
     destArr->array[destArr->member++] = initBaseAllocate(allocator, resource[0], resource[1]);
 }
-
 
 static _Bool upArrCapacity(BaseAllocateArr *destArr, Allocator *allocator) {
 
@@ -116,12 +133,3 @@ AllocatorResource *initAllocatorResource(Allocator *allocator) {
 
     return newAllocatorResource;
 }
-
-
-
-
-
-
-
-
-

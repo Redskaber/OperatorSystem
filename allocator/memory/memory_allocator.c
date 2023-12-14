@@ -31,7 +31,6 @@ Allocator *createAllocator(int total) {
     return newAllocator;
 }
 
-
 static void *allocate(Allocator *allocator, int size) {
 
     assert(size <= allocator->remain);
@@ -53,7 +52,6 @@ static void *reallocate(Allocator *allocator, void *oldMemory, size_t OldSize, s
     return newMemory;
 }
 
-
 static void deallocate(Allocator *allocator, void *allocate, int size) {
     if (allocate != NULL) {
         free(allocate);
@@ -71,7 +69,6 @@ static void display(const Allocator *allocator) {
     printf_s("\tremain: %d\n", allocator->remain);
     printf_s("########################################\n");
 }
-
 
 void destroyAllocator(Allocator *allocator) {
     if (allocator != NULL) {

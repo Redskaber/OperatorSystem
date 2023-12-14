@@ -61,7 +61,14 @@ extern BaseAllocateArr *initBaseAllocateArr(Allocator *allocator, int member);
 
 extern void destroyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Allocator *allocator);
 
-extern void initResourceArr(BaseAllocateArr *destArr, ResourceType resourceArr[][2], int rows, Allocator *allocator);
+extern void initResourceArr(
+        BaseAllocateArr *destArr,
+        ResourceType resourceArr[][2],
+        int rows,
+        Allocator *allocator
+);
+
+extern void displayBaseAllocateArr(BaseAllocateArr *baseAllocateArr);
 
 extern AllocatorResource *initAllocatorResource(Allocator *allocator);
 

@@ -21,19 +21,19 @@ static SystemResource *createSystemResource() {
 void test_allocator() {
     SystemResource *sr = createSystemResource();
     displaySystemResource(sr);
-    sr->memory->display(sr->memory);
 
-
+    // create process control block
     ProConBlock *proConBlock = initProConBlock(
             0x0001,
             "process-0x0001",
             50,
             normal,
             proCallBack, sr->memory);
-    sr->memory->display(sr->memory);
-    BankProConBlock *bank_pcb = initBankProConBlockUsed(proConBlock, sr->memory);
-    displayBankProConBlock(bank_pcb);
 
+    // create banker process control block
+    BankProConBlock *bank_pcb = initBankProConBlockUsed(proConBlock, sr->memory);
+
+    // init banker pcb resource
     ResourceType maxResource[4][2] = {
             {memory,  10},
             {cpu,     5},
@@ -49,13 +49,22 @@ void test_allocator() {
             maxResource,
             assignedResource,
             4, sr);
-    displayBankProConBlock(bank_pcb);
-    sr->memory->display(sr->memory);
 
-    destroyBankProConBlock(bank_pcb, sr->memory);
-    sr->memory->display(sr->memory);
+    // init system available resource
+    ResourceType availableResource[4][2] = {
+            {memory,  50},
+            {cpu,     50},
+            {gpu,     50},
+            {network, 50}};
+    Banker *banker = initBanker(availableResource, 4, sr);
 
+    // push pbc to banker
+    pushProConBlockToBanker(banker, bank_pcb);
+
+    displaySystemResource(sr);
+    destroyBanker(banker, sr);
+
+    displaySystemResource(sr);
     destroySystemResource(sr);
-//    sr->memory->display(sr->memory);
 
 }
