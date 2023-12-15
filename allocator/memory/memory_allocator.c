@@ -5,11 +5,11 @@
 */
 #include "memory_allocator.h"
 
-static void *allocate(Allocator *allocator, int size);
+static void *allocate(Allocator *allocator, size_t size);
 
 static void *reallocate(Allocator *allocator, void *oldMemory, size_t OldSize, size_t NewSize);
 
-static void deallocate(Allocator *allocator, void *allocate, int size);
+static void deallocate(Allocator *allocator, void *allocate, size_t size);
 
 static void display(const Allocator *allocator);
 
@@ -31,15 +31,15 @@ Allocator *createAllocator(int total) {
     return newAllocator;
 }
 
-static void *allocate(Allocator *allocator, int size) {
+static void *allocate(Allocator *allocator, size_t size) {
 
     assert(size <= allocator->remain);
 
     void *newAllocate = malloc(size);
     memset(newAllocate, 0, size);
 
-    allocator->used += size;
-    allocator->remain -= size;
+    allocator->used += (int) size;
+    allocator->remain -= (int) size;
 
     return newAllocate;
 }
@@ -52,11 +52,11 @@ static void *reallocate(Allocator *allocator, void *oldMemory, size_t OldSize, s
     return newMemory;
 }
 
-static void deallocate(Allocator *allocator, void *allocate, int size) {
+static void deallocate(Allocator *allocator, void *allocate, size_t size) {
     if (allocate != NULL) {
         free(allocate);
-        allocator->used -= size;
-        allocator->remain += size;
+        allocator->used -= (int) size;
+        allocator->remain += (int) size;
         allocate = NULL;
     }
 }

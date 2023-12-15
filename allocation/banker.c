@@ -5,6 +5,28 @@
 */
 #include "banker.h"
 
+static void initAvailableResourceAllocate(
+        Banker *banker,
+        BankProConBlock *bankProConBlock
+) {
+    BaseAllocateArr *availableResource = banker->availableResource;
+    int avaSize = availableResource->member;
+
+    BaseAllocateArr *needResource = bankProConBlock->resource->needResource;
+    int needSize = needResource->member;
+
+    BaseAllocate *avaTemp = NULL;
+    BaseAllocate *needTemp = NULL;
+    for (int i = 0; i < avaSize; ++i) {
+        avaTemp = availableResource->array[i];
+        for (int j = 0; j < needSize; ++j) {
+            needTemp = needResource->array[j];
+            if (needTemp->type == avaTemp->type) {
+//                avaTemp;
+            }
+        }
+    }
+}
 
 void initAllocatorResourceArr(
         BankProConBlock *bankProConBlock,
@@ -32,7 +54,6 @@ void initAllocatorResourceArr(
             needResourceArr, rows,
             systemResource->memory);
 
-//    initResourceAllocator(assignedResourceArr, rows, systemResource);
 }
 
 void displayAllocatorResource(AllocatorResource *allocatorResource) {
@@ -128,7 +149,7 @@ Banker *initBanker(
 
     newBanker->size = 0;
     newBanker->maxSize = BANKER_INIT_ARRAY_MEMBER;
-    int initSize = sizeof(BankProConBlock *) * newBanker->maxSize;
+    size_t initSize = newBanker->maxSize * sizeof(BankProConBlock *);
     newBanker->array = systemResource->memory->allocate(systemResource->memory, initSize);
     assert(newBanker->array != NULL);
 
@@ -150,7 +171,7 @@ void destroyBanker(Banker *banker, SystemResource *systemResource) {
                 destroyBankProConBlock(banker->array[i], systemResource->memory);
                 banker->array[i] = NULL;
             }
-            int arrSize = sizeof(BankProConBlock *) * banker->maxSize;
+            size_t arrSize = sizeof(BankProConBlock *) * banker->maxSize;
             systemResource->memory->deallocate(systemResource->memory, banker->array, arrSize);
         }
         destroyBaseAllocateArr(banker->availableResource, systemResource->memory);
@@ -159,9 +180,50 @@ void destroyBanker(Banker *banker, SystemResource *systemResource) {
     }
 }
 
-void pushProConBlockToBanker(Banker *banker, BankProConBlock *bankProConBlock) {
+static _Bool upCapacityBankerProConBlockArr(Banker *banker, SystemResource *systemResource) {
+    Allocator *allocator = systemResource->memory;
+
+    int maxSize = banker->maxSize < 5 ? 5 : 2 * banker->maxSize;
+    size_t oldSize = banker->maxSize * sizeof(BankProConBlock *);
+    size_t newSize = maxSize * sizeof(BankProConBlock *);
+
+    BankProConBlock **newArr = allocator->reallocate(allocator, banker->array, oldSize, newSize);
+    if (newArr == NULL) {
+        return false;
+    }
+    banker->array = newArr;
+    banker->maxSize = maxSize;
+    return true;
+}
+
+void pushProConBlockToBanker(Banker *banker, BankProConBlock *bankProConBlock, SystemResource *systemResource) {
     if (banker->size >= banker->maxSize) {
-        // banker->array up capacity;
+        assert(upCapacityBankerProConBlockArr(banker, systemResource) == true);
     }
     banker->array[banker->size++] = bankProConBlock;
+}
+
+void pushProConBlockArrToBanker(
+        Banker *banker,
+        ProConBlock **pcbArr,
+        int member, int rows,
+        ResourceType bankerProConBlockGroup[member][rows][3],
+        SystemResource *systemResource
+) {
+    BankProConBlock *bankProConBlock = NULL;
+
+    ResourceType maxResourceArr[rows][2] = {};
+    ResourceType assignedResourceArr[rows][2] = {};
+
+    for (int i = 0; i < member; ++i) {
+        bankProConBlock = initBankProConBlockUsed(pcbArr[i], systemResource->memory);
+        for (int j = 0; j < rows; ++j) {
+            maxResourceArr[j][0] = bankerProConBlockGroup[i][j][0];
+            maxResourceArr[j][1] = bankerProConBlockGroup[i][j][1];
+            assignedResourceArr[j][0] = bankerProConBlockGroup[i][j][0];
+            assignedResourceArr[j][1] = bankerProConBlockGroup[i][j][2];
+        }
+        initAllocatorResourceArr(bankProConBlock, maxResourceArr, assignedResourceArr, rows, systemResource);
+        pushProConBlockToBanker(banker, bankProConBlock, systemResource);
+    }
 }

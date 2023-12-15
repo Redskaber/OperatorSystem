@@ -104,7 +104,11 @@ extern void initAllocatorResourceArr(
         SystemResource *systemResource
 );
 
-extern void pushToResourceArr(BaseAllocateArr *destArr, ResourceType resource[2], Allocator *allocator);
+extern void pushToResourceArr(
+        BaseAllocateArr *destArr,
+        ResourceType resource[2],
+        Allocator *allocator
+);
 
 extern void displayAllocatorResource(AllocatorResource *allocatorResource);
 
@@ -120,6 +124,18 @@ extern Banker *initBanker(
 
 extern void destroyBanker(Banker *banker, SystemResource *systemResource);
 
-extern void pushProConBlockToBanker(Banker *banker, BankProConBlock *bankProConBlock);
+extern void pushProConBlockToBanker(
+        Banker *banker,
+        BankProConBlock *bankProConBlock,
+        SystemResource *systemResource
+);
+
+extern void pushProConBlockArrToBanker(
+        Banker *banker,
+        ProConBlock **pcbArr,
+        int member, int rows,
+        ResourceType bankerProConBlockGroup[member][rows][3],
+        SystemResource *systemResource
+);
 
 #endif //OPERATORSYSTEM_BANKER_H

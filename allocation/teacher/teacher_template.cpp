@@ -71,7 +71,7 @@ void chushihua() {
 void safe() {
     l = 0;//l用来记录有几个进程是Finish[i]=1的
     for (i = 0; i < n; i++) {  //i++
-        if (Finish[i] == 0) {  //逐个查找Finish[i]==0的进程    条件一
+        if (Finish[i] == 0) {  //逐查找Finish[i]==0的进程    条件一个
             counter = 0;   //记数器
             for (j = 0; j < m; j++) {
                 if (Work[j] >= Need[i][j])

@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <memory.h>
 #include <assert.h>
+
 #define ALLOCATE_TOTAL_SIZE 1000
 
 typedef struct Allocator {
@@ -19,11 +20,11 @@ typedef struct Allocator {
     int used;
     int remain;
 
-    void *(*allocate)(struct Allocator *allocator, int size);
+    void *(*allocate)(struct Allocator *allocator, size_t size);
 
     void *(*reallocate)(struct Allocator *allocator, void *oldMemory, size_t OldSize, size_t NewSize);
 
-    void (*deallocate)(struct Allocator *allocator, void *allocate, int size);
+    void (*deallocate)(struct Allocator *allocator, void *allocate, size_t size);
 
     void (*display)(const struct Allocator *allocator);
 

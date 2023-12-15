@@ -41,7 +41,7 @@ BaseAllocateArr *initBaseAllocateArr(Allocator *allocator, int member) {
     newBaseAllocateArr->member = 0;
     newBaseAllocateArr->max_member = member;
 
-    int initSize = sizeof(BaseAllocate *) * newBaseAllocateArr->max_member;
+    size_t initSize = sizeof(BaseAllocate *) * newBaseAllocateArr->max_member;
     newBaseAllocateArr->array = allocator->allocate(allocator, initSize);
     assert(newBaseAllocateArr->array != NULL);
     memset(newBaseAllocateArr->array, 0, sizeof(BaseAllocate *) * member);
@@ -58,7 +58,7 @@ void destroyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Allocator *allocat
             }
         }
 
-        int arraySize = sizeof(BaseAllocate *) * baseAllocateArr->max_member;
+        size_t arraySize = sizeof(BaseAllocate *) * baseAllocateArr->max_member;
         allocator->deallocate(allocator, baseAllocateArr->array, arraySize);
         allocator->deallocate(allocator, baseAllocateArr, sizeof(BaseAllocateArr));
     }
