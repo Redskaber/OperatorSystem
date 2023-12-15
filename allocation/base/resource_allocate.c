@@ -101,6 +101,14 @@ void pushToResourceArr(BaseAllocateArr *destArr, ResourceType resource[2], Alloc
     destArr->array[destArr->member++] = initBaseAllocate(allocator, resource[0], resource[1]);
 }
 
+void pushToResourceArrUsedBaseAllocate(BaseAllocateArr *destArr, BaseAllocate *resource, Allocator *allocator) {
+    if (destArr->member >= destArr->max_member) {
+        assert(upArrCapacity(destArr, allocator) != true);
+    }
+    destArr->array[destArr->member++] = initBaseAllocate(allocator, resource->type, resource->number);
+}
+
+
 static _Bool upArrCapacity(BaseAllocateArr *destArr, Allocator *allocator) {
 
     int newMember = destArr->max_member > 0 && destArr->max_member < 10 ? 10 : 2 * destArr->max_member;

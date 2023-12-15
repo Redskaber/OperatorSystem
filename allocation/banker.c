@@ -5,28 +5,13 @@
 */
 #include "banker.h"
 
-static void initAvailableResourceAllocate(
-        Banker *banker,
-        BankProConBlock *bankProConBlock
-) {
-    BaseAllocateArr *availableResource = banker->availableResource;
-    int avaSize = availableResource->member;
+BankProConBlock *deepCopyBankProConBlock(BankProConBlock *bankProConBlock, SystemResource *systemResource);
 
-    BaseAllocateArr *needResource = bankProConBlock->resource->needResource;
-    int needSize = needResource->member;
-
-    BaseAllocate *avaTemp = NULL;
-    BaseAllocate *needTemp = NULL;
-    for (int i = 0; i < avaSize; ++i) {
-        avaTemp = availableResource->array[i];
-        for (int j = 0; j < needSize; ++j) {
-            needTemp = needResource->array[j];
-            if (needTemp->type == avaTemp->type) {
-//                avaTemp;
-            }
-        }
-    }
-}
+void deepCopyAllocatorResource(
+        AllocatorResource *destResource,
+        AllocatorResource *sourceResource,
+        SystemResource *systemResource
+);
 
 void initAllocatorResourceArr(
         BankProConBlock *bankProConBlock,
@@ -225,5 +210,104 @@ void pushProConBlockArrToBanker(
         }
         initAllocatorResourceArr(bankProConBlock, maxResourceArr, assignedResourceArr, rows, systemResource);
         pushProConBlockToBanker(banker, bankProConBlock, systemResource);
+    }
+}
+
+/*
+ *  not free completely, wait handle.!!!!!!
+ */
+static _Bool canBeAllocated(BaseAllocateArr *needResource, BaseAllocateArr *availableResource) {
+    HashMap *map = createHashMap(availableResource->member);
+
+    for (int i = 0; i < availableResource->member; ++i) {
+        char *key = resourceTypeToString(availableResource->array[i]->type);
+        int value = availableResource->array[i]->number;
+        insert(map, key, value);
+    }
+
+    for (int i = 0; i < needResource->member; ++i) {
+        char *key = resourceTypeToString(needResource->array[i]->type);
+        int resource = get(map, key);
+        if (resource != -1) {
+            if (resource < needResource->array[i]->number) {
+                destroyHashMap(map);
+                return false;
+            }
+        } else {
+            destroyHashMap(map);
+            return false;
+        }
+    }
+    destroyHashMap(map);
+    return true;
+}
+
+void checkResourceSecurity(Banker *banker, SystemResource *systemResource) {
+    // find can allocate banker pcb
+    int member = banker->size;
+    BankProConBlock **array = banker->array;
+    BaseAllocateArr *availableResource = banker->availableResource;
+    BankProConBlock *bank_pcb = NULL;
+    BankProConBlock *saveStatus = NULL;
+
+    for (int i = 0; i < member; ++i) {
+        bank_pcb = array[i];
+        if (canBeAllocated(bank_pcb->resource->needResource, availableResource)) {
+            // save find banker status.
+            saveStatus = deepCopyBankProConBlock(bank_pcb, systemResource);
+            // try allocator allocate resource banker pcb.
+
+            // check allocated resource, do can?
+            //      YES, loop
+            //      NO, rollback
+
+            displayBaseAllocateArr(bank_pcb->resource->needResource);
+            displayBaseAllocateArr(availableResource);
+            destroyBankProConBlock(saveStatus, systemResource->memory);
+        }
+    }
+}
+
+
+BankProConBlock *deepCopyBankProConBlock(BankProConBlock *bankProConBlock, SystemResource *systemResource) {
+    BankProConBlock *newBankProConBlock = initBankProConBlock(
+            bankProConBlock->base->p_id,
+            bankProConBlock->base->p_name,
+            bankProConBlock->base->p_total_time,
+            bankProConBlock->base->p_priority,
+            bankProConBlock->base->callback,
+            systemResource->memory
+    );
+    newBankProConBlock->resource = initAllocatorResource(systemResource->memory);
+    deepCopyAllocatorResource(
+            newBankProConBlock->resource,
+            bankProConBlock->resource,
+            systemResource
+    );
+
+    return newBankProConBlock;
+}
+
+void deepCopyAllocatorResource(
+        AllocatorResource *destResource,
+        AllocatorResource *sourceResource,
+        SystemResource *systemResource
+) {
+    for (int i = 0; i < sourceResource->maxResource->member; ++i) {
+        pushToResourceArrUsedBaseAllocate(
+                destResource->maxResource,
+                sourceResource->maxResource->array[i],
+                systemResource->memory
+        );
+        pushToResourceArrUsedBaseAllocate(
+                destResource->assignedResource,
+                sourceResource->assignedResource->array[i],
+                systemResource->memory
+        );
+        pushToResourceArrUsedBaseAllocate(
+                destResource->needResource,
+                sourceResource->needResource->array[i],
+                systemResource->memory
+        );
     }
 }

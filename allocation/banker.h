@@ -70,6 +70,7 @@
 #include "base/resource_allocate.h"
 #include "../allocator/systemResource.h"
 #include "../process/process_scheduling.h"
+#include "../tools/hashMap/hashMap.h"
 
 
 typedef struct BankProConBlock {
@@ -104,12 +105,6 @@ extern void initAllocatorResourceArr(
         SystemResource *systemResource
 );
 
-extern void pushToResourceArr(
-        BaseAllocateArr *destArr,
-        ResourceType resource[2],
-        Allocator *allocator
-);
-
 extern void displayAllocatorResource(AllocatorResource *allocatorResource);
 
 extern void displayBankProConBlock(BankProConBlock *bankProConBlock);
@@ -137,5 +132,7 @@ extern void pushProConBlockArrToBanker(
         ResourceType bankerProConBlockGroup[member][rows][3],
         SystemResource *systemResource
 );
+
+extern void checkResourceSecurity(Banker *banker, SystemResource *systemResource);
 
 #endif //OPERATORSYSTEM_BANKER_H

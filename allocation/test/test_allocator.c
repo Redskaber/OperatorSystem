@@ -5,6 +5,7 @@
 */
 
 #include "test_allocator.h"
+#include "../../tools/hashMap/hashMap.h"
 
 static void *proCallBack(void *args) {
     printf_s("args", args);
@@ -13,7 +14,7 @@ static void *proCallBack(void *args) {
 
 
 static SystemResource *createSystemResource() {
-    SystemResource *sr = initSystemResource(5000, 1000, 1000, 200, 100, 500);
+    SystemResource *sr = initSystemResource(7000, 1000, 1000, 200, 100, 500);
     return sr;
 }
 
@@ -95,6 +96,7 @@ void test_allocator() {
 
     ProConBlock *pcbArr[5] = {pcb1, pcb2, pcb3, pcb4, pcb5};
     pushProConBlockArrToBanker(banker, pcbArr, 5, 4, bankerProConBlockGroup, sr);
+    checkResourceSecurity(banker, sr);
 
     displaySystemResource(sr);
     destroyBanker(banker, sr);
