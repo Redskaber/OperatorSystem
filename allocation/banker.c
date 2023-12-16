@@ -5,7 +5,14 @@
 */
 #include "banker.h"
 
-BankProConBlock *deepCopyBankProConBlock(BankProConBlock *bankProConBlock, SystemResource *systemResource);
+
+static BankProConBlock *deepCopyBankProConBlock(BankProConBlock *bankProConBlock, SystemResource *systemResource);
+
+static void deepCopyAllocatorResource(
+        AllocatorResource *destResource,
+        AllocatorResource *sourceResource,
+        SystemResource *systemResource
+);
 
 void deepCopyAllocatorResource(
         AllocatorResource *destResource,
@@ -38,7 +45,6 @@ void initAllocatorResourceArr(
             bankProConBlock->resource->needResource,
             needResourceArr, rows,
             systemResource->memory);
-
 }
 
 void displayAllocatorResource(AllocatorResource *allocatorResource) {
@@ -88,9 +94,7 @@ BankProConBlock *initBankProConBlock(
         CallBack callBack,
         Allocator *allocator
 ) {
-    BankProConBlock *newBankProConBlock = NULL;
-
-    newBankProConBlock = allocator->allocate(allocator, sizeof(BankProConBlock));
+    BankProConBlock *newBankProConBlock = allocator->allocate(allocator, sizeof(BankProConBlock));  // 2296 16
     assert(newBankProConBlock != NULL);
     newBankProConBlock->base = initProConBlock(p_id, p_name, p_total_time, p_priority, callBack, allocator);
     newBankProConBlock->resource = initAllocatorResource(allocator);
@@ -99,9 +103,7 @@ BankProConBlock *initBankProConBlock(
 }
 
 BankProConBlock *initBankProConBlockUsed(ProConBlock *proConBlock, Allocator *allocator) {
-    BankProConBlock *newBankProConBlock = NULL;
-
-    newBankProConBlock = allocator->allocate(allocator, sizeof(BankProConBlock));
+    BankProConBlock *newBankProConBlock = allocator->allocate(allocator, sizeof(BankProConBlock));
     assert(newBankProConBlock != NULL);
     newBankProConBlock->base = proConBlock;
     newBankProConBlock->resource = initAllocatorResource(allocator);
@@ -213,9 +215,6 @@ void pushProConBlockArrToBanker(
     }
 }
 
-/*
- *  not free completely, wait handle.!!!!!!
- */
 static _Bool canBeAllocated(BaseAllocateArr *needResource, BaseAllocateArr *availableResource) {
     HashMap *map = createHashMap(availableResource->member);
 
@@ -225,21 +224,18 @@ static _Bool canBeAllocated(BaseAllocateArr *needResource, BaseAllocateArr *avai
         insert(map, key, value);
     }
 
+    _Bool flag = false;
+
     for (int i = 0; i < needResource->member; ++i) {
         char *key = resourceTypeToString(needResource->array[i]->type);
         int resource = get(map, key);
-        if (resource != -1) {
-            if (resource < needResource->array[i]->number) {
-                destroyHashMap(map);
-                return false;
-            }
-        } else {
-            destroyHashMap(map);
-            return false;
+        if (resource != -1 && needResource->array[i]->number <= resource) {
+            flag = true;
+            break;
         }
     }
     destroyHashMap(map);
-    return true;
+    return flag;
 }
 
 void checkResourceSecurity(Banker *banker, SystemResource *systemResource) {
@@ -269,7 +265,7 @@ void checkResourceSecurity(Banker *banker, SystemResource *systemResource) {
 }
 
 
-BankProConBlock *deepCopyBankProConBlock(BankProConBlock *bankProConBlock, SystemResource *systemResource) {
+static BankProConBlock *deepCopyBankProConBlock(BankProConBlock *bankProConBlock, SystemResource *systemResource) {
     BankProConBlock *newBankProConBlock = initBankProConBlock(
             bankProConBlock->base->p_id,
             bankProConBlock->base->p_name,
@@ -278,17 +274,15 @@ BankProConBlock *deepCopyBankProConBlock(BankProConBlock *bankProConBlock, Syste
             bankProConBlock->base->callback,
             systemResource->memory
     );
-    newBankProConBlock->resource = initAllocatorResource(systemResource->memory);
     deepCopyAllocatorResource(
             newBankProConBlock->resource,
             bankProConBlock->resource,
             systemResource
     );
-
     return newBankProConBlock;
 }
 
-void deepCopyAllocatorResource(
+static void deepCopyAllocatorResource(
         AllocatorResource *destResource,
         AllocatorResource *sourceResource,
         SystemResource *systemResource

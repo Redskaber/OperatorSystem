@@ -32,7 +32,6 @@ void destroyBaseAllocate(BaseAllocate *baseAllocate, Allocator *allocator) {
     }
 }
 
-
 BaseAllocateArr *initBaseAllocateArr(Allocator *allocator, int member) {
     BaseAllocateArr *newBaseAllocateArr = NULL;
     newBaseAllocateArr = allocator->allocate(allocator, sizeof(BaseAllocateArr));
@@ -91,7 +90,6 @@ void displayBaseAllocateArr(BaseAllocateArr *baseAllocateArr) {
     }
     printf_s("\n");
     printf_s("###################################\n");
-
 }
 
 void pushToResourceArr(BaseAllocateArr *destArr, ResourceType resource[2], Allocator *allocator) {
@@ -102,12 +100,9 @@ void pushToResourceArr(BaseAllocateArr *destArr, ResourceType resource[2], Alloc
 }
 
 void pushToResourceArrUsedBaseAllocate(BaseAllocateArr *destArr, BaseAllocate *resource, Allocator *allocator) {
-    if (destArr->member >= destArr->max_member) {
-        assert(upArrCapacity(destArr, allocator) != true);
-    }
-    destArr->array[destArr->member++] = initBaseAllocate(allocator, resource->type, resource->number);
+    ResourceType resourceArr[2] = {resource->type, resource->number};
+    pushToResourceArr(destArr, resourceArr, allocator);
 }
-
 
 static _Bool upArrCapacity(BaseAllocateArr *destArr, Allocator *allocator) {
 

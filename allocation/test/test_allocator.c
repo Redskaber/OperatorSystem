@@ -5,7 +5,6 @@
 */
 
 #include "test_allocator.h"
-#include "../../tools/hashMap/hashMap.h"
 
 static void *proCallBack(void *args) {
     printf_s("args", args);
