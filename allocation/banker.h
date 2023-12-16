@@ -71,6 +71,7 @@
 #include "../allocator/systemResource.h"
 #include "../process/process_scheduling.h"
 #include "../tools/hashMap/hashMap.h"
+#include "../tools/hashMapResource/hashMapResource.h"
 
 
 typedef struct BankProConBlock {

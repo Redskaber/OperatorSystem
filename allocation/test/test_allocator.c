@@ -23,10 +23,10 @@ void test_allocator() {
     displaySystemResource(sr);
 
     ResourceType availableResource[4][2] = {
-            {memory,  50},
-            {cpu,     50},
-            {gpu,     50},
-            {network, 50}};
+            {memory,  25},
+            {cpu,     20},
+            {gpu,     20},
+            {network, 10}};
     Banker *banker = initBanker(availableResource, 4, sr);
 
     ResourceType bankerProConBlockGroup[5][4][3] = {

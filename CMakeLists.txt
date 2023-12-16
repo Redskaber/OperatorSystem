@@ -31,4 +31,6 @@ add_executable(OperatorSystem main.c
         allocation/base/resource_allocate.h
         tools/hashMap/hashMap.c
         tools/hashMap/hashMap.h
+        tools/hashMapResource/hashMapResource.c
+        tools/hashMapResource/hashMapResource.h
 )

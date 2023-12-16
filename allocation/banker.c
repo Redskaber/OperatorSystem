@@ -5,6 +5,9 @@
 */
 #include "banker.h"
 
+static void initHashMap(HashMap *map, BaseAllocateArr *availableResource);
+
+static _Bool canBeAllocated(BaseAllocateArr *needResource, BaseAllocateArr *availableResource);
 
 static BankProConBlock *deepCopyBankProConBlock(BankProConBlock *bankProConBlock, SystemResource *systemResource);
 
@@ -14,11 +17,6 @@ static void deepCopyAllocatorResource(
         SystemResource *systemResource
 );
 
-void deepCopyAllocatorResource(
-        AllocatorResource *destResource,
-        AllocatorResource *sourceResource,
-        SystemResource *systemResource
-);
 
 void initAllocatorResourceArr(
         BankProConBlock *bankProConBlock,
@@ -190,6 +188,54 @@ void pushProConBlockToBanker(Banker *banker, BankProConBlock *bankProConBlock, S
     banker->array[banker->size++] = bankProConBlock;
 }
 
+static _Bool whetherResourcesCanBeAllocated(
+        int rows,
+        ResourceType assignedResourceArr[rows][2],
+        BaseAllocateArr *availableResource
+) {
+    /*
+     * @Params:
+     *  rows: rows
+     *  assignedResourceArr: assigned Resource Array
+     *  availableResource: available Resource array
+     *
+     * @Description:
+     *  The reference address of the data is stored using a custom hashMap,
+     *  enabling indirect modification of the value to be changed by altering the value pointed to by the address.
+     *  The modified value is restored through reverse traversal, achieving a rollback effect.
+     */
+
+    HashMapResource *mapResource = createHashMapResource(availableResource->member);
+
+    for (int i = 0; i < availableResource->member; ++i) {
+        char *key = resourceTypeToString(availableResource->array[i]->type);
+        int *value = &availableResource->array[i]->number;
+        insertResource(mapResource, key, value);
+    }
+
+    char *key = NULL;
+    int *value = NULL;
+    _Bool flag = true;
+    for (int i = 0; i < rows; ++i) {
+        key = resourceTypeToString(assignedResourceArr[i][0]);
+        value = getResource(mapResource, key);
+        if (value != NULL && assignedResourceArr[i][1] <= *value) {
+            *value -= (int) assignedResourceArr[i][1];
+        } else {
+            for (int j = i - 1; j >= 0; --j) {
+                key = resourceTypeToString(assignedResourceArr[j][0]);
+                value = getResource(mapResource, key);
+                *value += (int) assignedResourceArr[j][1];
+            }
+            flag = false;
+            break;
+        }
+    }
+
+    destroyHashMapResource(mapResource);
+    return flag;
+}
+
 void pushProConBlockArrToBanker(
         Banker *banker,
         ProConBlock **pcbArr,
@@ -210,32 +256,34 @@ void pushProConBlockArrToBanker(
             assignedResourceArr[j][0] = bankerProConBlockGroup[i][j][0];
             assignedResourceArr[j][1] = bankerProConBlockGroup[i][j][2];
         }
+        assert(whetherResourcesCanBeAllocated(rows, assignedResourceArr, banker->availableResource) == true);
         initAllocatorResourceArr(bankProConBlock, maxResourceArr, assignedResourceArr, rows, systemResource);
         pushProConBlockToBanker(banker, bankProConBlock, systemResource);
     }
 }
 
-static _Bool canBeAllocated(BaseAllocateArr *needResource, BaseAllocateArr *availableResource) {
-    HashMap *map = createHashMap(availableResource->member);
-
+static void initHashMap(HashMap *map, BaseAllocateArr *availableResource) {
     for (int i = 0; i < availableResource->member; ++i) {
         char *key = resourceTypeToString(availableResource->array[i]->type);
         int value = availableResource->array[i]->number;
         insert(map, key, value);
     }
+}
 
-    _Bool flag = false;
+static _Bool canBeAllocated(BaseAllocateArr *needResource, BaseAllocateArr *availableResource) {
+    HashMap *map = createHashMap(availableResource->member);
+    initHashMap(map, availableResource);
 
+    int counter = 0;
     for (int i = 0; i < needResource->member; ++i) {
         char *key = resourceTypeToString(needResource->array[i]->type);
         int resource = get(map, key);
         if (resource != -1 && needResource->array[i]->number <= resource) {
-            flag = true;
-            break;
+            counter += 1;
         }
     }
     destroyHashMap(map);
-    return flag;
+    return counter == needResource->member;
 }
 
 void checkResourceSecurity(Banker *banker, SystemResource *systemResource) {
@@ -248,6 +296,7 @@ void checkResourceSecurity(Banker *banker, SystemResource *systemResource) {
 
     for (int i = 0; i < member; ++i) {
         bank_pcb = array[i];
+        // find bank pcb
         if (canBeAllocated(bank_pcb->resource->needResource, availableResource)) {
             // save find banker status.
             saveStatus = deepCopyBankProConBlock(bank_pcb, systemResource);
@@ -256,7 +305,6 @@ void checkResourceSecurity(Banker *banker, SystemResource *systemResource) {
             // check allocated resource, do can?
             //      YES, loop
             //      NO, rollback
-
             displayBaseAllocateArr(bank_pcb->resource->needResource);
             displayBaseAllocateArr(availableResource);
             destroyBankProConBlock(saveStatus, systemResource->memory);
