@@ -117,6 +117,17 @@ void destroyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Allocator *allocat
     }
 }
 
+BaseAllocateArr * deepCopyBaseAllocateArr(BaseAllocateArr* baseAllocateArr, Allocator* allocator){
+    BaseAllocateArr* newBaseAllocateArr = initBaseAllocateArr(allocator, baseAllocateArr->max_member);
+    for (int i = 0; i < baseAllocateArr->member; ++i) {
+        newBaseAllocateArr->array[i] = initBaseAllocate(allocator, baseAllocateArr->array[i]->type, baseAllocateArr->array[i]->number);
+    }
+    newBaseAllocateArr->member = baseAllocateArr->member;
+    return newBaseAllocateArr;
+}
+
+
+
 /**
  * @brief Initializes a BaseAllocateArr structure with resources.
  *

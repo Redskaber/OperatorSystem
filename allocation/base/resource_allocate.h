@@ -59,6 +59,8 @@ extern void destroyBaseAllocate(BaseAllocate *baseAllocate, Allocator *allocator
 
 extern BaseAllocateArr *initBaseAllocateArr(Allocator *allocator, int member);
 
+extern BaseAllocateArr *deepCopyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Allocator *allocator);
+
 extern void destroyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Allocator *allocator);
 
 extern void initResourceArr(

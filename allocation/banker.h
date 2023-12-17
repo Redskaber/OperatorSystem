@@ -97,6 +97,6 @@ extern void pushProConBlockArrToBanker(
         SystemResource *systemResource
 );
 
-extern void checkResourceSecurity(Banker *banker, SystemResource *systemResource);
+extern _Bool checkResourceSecurity(Banker *banker, SystemResource *systemResource);
 
 #endif //OPERATORSYSTEM_BANKER_H
