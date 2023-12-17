@@ -2,6 +2,7 @@
 学习操作系统相关记录
 
 ## 进程调度
+
   **执行流程：**
 ```markdown
 +---------------------+         +----------------------+
@@ -40,6 +41,7 @@
   **结构体设计：**
   PCB
   结构体字段名：
+
   - 进程ID
   - 进程名
   - 进程状态
@@ -48,8 +50,6 @@
   - 进程总需时间
   - 进程队列
 - ```markdown
-    
-    
   进程ID            进程之间的身份标识
   进程名             用于存储进程的名称
   进程状态           用于表示进程的状态    'w'（就绪状态） 和  'R'（运行状态）
@@ -60,3 +60,82 @@
     
   进程队列           表示需要执行的进程队列
   ```
+
+
+
+## 资源分配
+
+### 银行家算法
+
+银行家算法（Banker's Algorithm）是一种用于避免死锁（Deadlock）的资源分配算法，特别是在多进程共享有限资源的情况下。
+它是由 Edsger Dijkstra 提出的。银行家算法通过在分配资源之前检查系统状态，判断是否存在安全序列，从而避免了死锁的发生。
+
+**基本功能:**
+
+- 资源类型（Resource Type):     系统中存在的资源种类，如打印机、内存块等。
+- 进程（Process):                      请求资源的程序或任务。
+- 最大需求矩阵（Maximum Demand Matrix):      记录每个进程对各类资源的最大需求量。
+- 可用资源向量（Available Resources Vector):    记录系统当前可用的资源数量。
+- 分配矩阵（Allocation Matrix): 记录已分配给各进程的资源数量。
+- 需求矩阵（Need Matrix):       记录各进程还需的资源数量。
+
+**实现步骤:**
+
+- 初始化
+- 判断安全性
+- 资源请求检查
+- 试探分配
+- 安全性检查
+- 资源释放
+
+## 工具结构
+
+### hashMap
+
+普通的hashMap
+
+**基本功能：**
+
+- 创建： createHashMap
+- 插入： insert
+- 读取： get
+- 销毁： destroyHashMap
+
+```C
+typedef struct HashNode {
+    char *key;
+    int value;
+    struct HashNode *next;
+} HashNode;
+
+typedef struct HashMap {
+    int size;
+    HashNode **table;
+} HashMap;
+```
+
+
+
+### hashMapResource
+
+存储指针的hashMap
+
+**基本功能：**
+
+- 创建： createHashMapResource
+- 插入： insertResource
+- 读取： getResource
+- 销毁： destroyHashMapResource
+
+```c
+typedef struct HashNodeResource {
+    char *key;
+    int *value;
+    struct HashNodeResource *next;
+} HashNodeResource;
+
+typedef struct HashMapResource {
+    int size;
+    HashNodeResource **table;
+} HashMapResource;
+```

@@ -28,43 +28,6 @@
             试探分配
             安全性检查
             资源释放
-
-        ```
-            def banker_algorithm(processes, available_resources, max_demand, allocation):
-                # Initialize matrices and vectors
-
-                while True:
-                    # Check for an available process that can be satisfied
-                    process = find_satisfiable_process()
-
-                    if process is None:
-                        break  # No satisfiable process found, exit loop
-
-                    # Try to allocate resources to the process
-                    if try_allocation(process):
-                        # Successfully allocated resources, release them after some work
-                        release_resources(process)
-
-                return "Safe" if all_processes_finished() else "Unsafe"
-        ```
-
-
-        3.结构体设计
-
-            1.PCB
-                pid, p_name, state, priority, ...
-
-            2.resource type
-                memory, cpu, file, ...
-
-            3.resource manage
-                max resource
-                need resource
-                has resource
-
-            4.resource calc
-                allocate...
-                deallocate ...
  */
 #include <assert.h>
 #include "base/resource_allocate.h"

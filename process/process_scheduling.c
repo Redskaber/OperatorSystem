@@ -23,12 +23,18 @@
 
 
 
+/**
+ * @brief Creates a new ProConBlock structure and initializes it as the head of a linked list.
+ *
+ * This function allocates memory for a new ProConBlock structure and initializes its fields.
+ * It sets the process ID to 0, the process name to "HEAD", and the process state to new.
+ * It also sets the process priority, total time, and execute time to 0, and the callback function to NULL.
+ * The previous and next ProConBlock pointers are set to NULL, indicating that this ProConBlock is the head of a linked list.
+ *
+ * @param allocator Pointer to the Allocator structure used for memory management.
+ * @return Pointer to the newly created ProConBlock structure.
+ */
 static ProConBlock *headProConBlock(Allocator *allocator) {
-    /*
-     * @Description:
-     *  Create a header node that does not have any control function to
-     *  facilitate the processing of linked lists.
-     */
 
     ProConBlock *head = allocator->allocate(allocator, sizeof(ProConBlock));
     head->p_id = 0x0;
@@ -46,20 +52,31 @@ static ProConBlock *headProConBlock(Allocator *allocator) {
 }
 
 
+/**
+ * @brief Initializes a ProConBlock structure.
+ *
+ * This function allocates memory for a new ProConBlock structure and initializes its fields.
+ * It first creates a head ProConBlock by calling the headProConBlock function.
+ * It then sets the process ID, name, state, priority, total time, execute time, and callback function to the provided values.
+ * The previous and next ProConBlock pointers are set to NULL, indicating that this ProConBlock is not linked to any other ProConBlocks.
+ *
+ * @param p_id The process ID to be assigned to the ProConBlock.
+ * @param p_name The process name to be assigned to the ProConBlock.
+ * @param p_total_time The total time to be assigned to the ProConBlock.
+ * @param p_priority The process priority to be assigned to the ProConBlock.
+ * @param callBack The callback function to be assigned to the ProConBlock.
+ * @param allocator Pointer to the Allocator structure used for memory management.
+ * @return Pointer to the newly created ProConBlock structure.
+ */
 ProConBlock *
-initProConBlock(int p_id, char *p_name, double p_total_time, ProcessPriority p_priority, CallBack callBack,
-                Allocator *allocator) {
-    /*
-     * @Param:
-     *  p_id: process id
-     *  p_name: process name
-     *  p_total_time: process execute total time
-     *  p_priority: process priority
-     *  callback: callback function
-     *
-     * @Description:
-     *  Used to create a PCB node and return a pointer of that type.
-     */
+initProConBlock(
+        int p_id,
+        char *p_name,
+        double p_total_time,
+        ProcessPriority p_priority,
+        CallBack callBack,
+        Allocator *allocator
+) {
 
     ProConBlock *newProConBlock = headProConBlock(allocator);
 
@@ -79,14 +96,19 @@ initProConBlock(int p_id, char *p_name, double p_total_time, ProcessPriority p_p
     return newProConBlock;
 }
 
+/**
+ * @brief Destroys a ProConBlock structure.
+ *
+ * This function deallocates the memory used by the ProConBlock structure.
+ * It first checks if the ProConBlock pointer is not NULL.
+ * If it is not NULL, it checks if the aftProConBlock pointer in the ProConBlock is not NULL.
+ * If the aftProConBlock pointer is not NULL, it recursively destroys the aftProConBlock.
+ * It then deallocates the memory used by the ProConBlock structure and sets the ProConBlock pointer to NULL.
+ *
+ * @param proConBlock Pointer to the ProConBlock structure to be destroyed.
+ * @param allocator Pointer to the Allocator structure used for memory management.
+ */
 void destroyProConBlock(ProConBlock *proConBlock, Allocator *allocator) {
-    /*
-     * @Param:
-     *  proConBlock: destroy process control block.
-     *
-     * @Description:
-     *  Used destroy link process control block.
-     */
 
     if (proConBlock != NULL) {
         if (proConBlock->aftProConBlock != NULL) {
@@ -98,14 +120,16 @@ void destroyProConBlock(ProConBlock *proConBlock, Allocator *allocator) {
     }
 }
 
+/**
+ * @brief Displays the details of a ProConBlock structure.
+ *
+ * This function prints the details of the ProConBlock structure to the console.
+ * It displays the process ID, process name, process state, process priority, total time, and execute time.
+ * The process state and process priority are displayed as strings, converted from their respective enum values.
+ *
+ * @param proConBlock Pointer to the ProConBlock structure to be displayed.
+ */
 void displayProConBlock(ProConBlock *proConBlock) {
-    /*
-     * @Param:
-     *  proConBlock: used display process control block.
-     *
-     * @Description:
-     *  used display process control block.
-     */
 
     printf_s("###################################\n");
     printf_s("process:\n");
@@ -119,13 +143,19 @@ void displayProConBlock(ProConBlock *proConBlock) {
 }
 
 
+/**
+ * @brief Initializes a ProConBlockLink structure.
+ *
+ * This function allocates memory for a new ProConBlockLink structure and initializes its fields.
+ * It creates a head ProConBlock by calling the headProConBlock function and assigns it to the headProConBlock field of the ProConBlockLink.
+ * It also sets the lastProConBlock field of the ProConBlockLink to the headProConBlock, indicating that the ProConBlockLink currently contains only the head ProConBlock.
+ *
+ * @param allocator Pointer to the Allocator structure used for memory management.
+ * @return Pointer to the newly created ProConBlockLink structure.
+ */
 ProConBlockLink *initProConBlockLink(Allocator *allocator) {
-    /*
-     * @Description:
-     *  used init process control block link.
-     */
+
     ProConBlockLink *newProConBlockLink = NULL;
-//    newProConBlockLink = (ProConBlockLink *) malloc(sizeof(ProConBlockLink));
     newProConBlockLink = allocator->allocate(allocator, sizeof(ProConBlockLink));
     newProConBlockLink->headProConBlock = headProConBlock(allocator);
     newProConBlockLink->lastProConBlock = newProConBlockLink->headProConBlock;
@@ -133,14 +163,18 @@ ProConBlockLink *initProConBlockLink(Allocator *allocator) {
     return newProConBlockLink;
 }
 
+/**
+ * @brief Destroys a ProConBlockLink structure.
+ *
+ * This function deallocates the memory used by the ProConBlockLink structure.
+ * It first checks if the ProConBlockLink pointer is not NULL.
+ * If it is not NULL, it destroys the head ProConBlock in the ProConBlockLink by calling the destroyProConBlock function.
+ * It then deallocates the memory used by the ProConBlockLink structure itself.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink structure to be destroyed.
+ * @param allocator Pointer to the Allocator structure used for memory management.
+ */
 void destroyProConBlockLink(ProConBlockLink *proConBlockLink, Allocator *allocator) {
-    /*
-     * @Param:
-     *  proConBlockLink: process control block link.
-     *
-     * @Description:
-     *  used destroy process control block link.
-     */
 
     if (proConBlockLink != NULL) {
         destroyProConBlock(proConBlockLink->headProConBlock, allocator);
@@ -148,16 +182,22 @@ void destroyProConBlockLink(ProConBlockLink *proConBlockLink, Allocator *allocat
     }
 }
 
+/**
+ * @brief Adds a ProConBlock to a ProConBlockLink.
+ *
+ * This function adds a ProConBlock to a ProConBlockLink.
+ * If the aftProConBlock field of the headProConBlock in the ProConBlockLink is NULL,
+ * it means the ProConBlockLink is empty. In this case, it adds the ProConBlock to the
+ * aftProConBlock field of the headProConBlock and sets the lastProConBlock field of the
+ * ProConBlockLink to the ProConBlock.
+ * If the aftProConBlock field of the headProConBlock in the ProConBlockLink is not NULL,
+ * it means the ProConBlockLink already contains ProConBlocks. In this case, it inserts
+ * the ProConBlock at the beginning of the ProConBlockLink, right after the headProConBlock.
+ *
+ * @param proConBlock Pointer to the ProConBlock to be added to the ProConBlockLink.
+ * @param proConBlockLink Pointer to the ProConBlockLink where the ProConBlock will be added.
+ */
 void pushToLink(ProConBlock *proConBlock, ProConBlockLink *proConBlockLink) {
-    /*
-     * @Param:
-     *  proConBlock: process control block.
-     *  proConBlockLink: process control block link.
-     *
-     * @Description:
-     * Insert the process control block into the process control block linked list,
-     * and insert the header
-     */
 
     if (proConBlockLink->headProConBlock->aftProConBlock == NULL) {
         // [] -> []
@@ -175,34 +215,35 @@ void pushToLink(ProConBlock *proConBlock, ProConBlockLink *proConBlockLink) {
     }
 }
 
-inline static void insertProConBlockToOrderLink(
-        ProConBlockLink *proConBlockLink, ProConBlock *orderProConBlock, ProConBlock *insertProConBlock) {
-    /*
-     * @Param:
-     *  proConBlockLink: process control block link.
-     *  orderProConBlock: order process control block.
-     *  insertProConBlock: insert process control block.
-     *
-     * @Description:
-     *  Inserts the inserted process control block into the next location of the
-     *  ordered process control block in the process control chain.
-     */
-
-    // order         ↓
-    // insertIndex   ↓
-    // insertData            ↓
-    // H        ->  [1] <-> [2] <-> [3] -> NULL
-    // 1.脱 插入节点上节点指向下节点，下节点指向上节点
-
+/**
+ * @brief Inserts a ProConBlock into a ProConBlockLink at a specific position.
+ *
+ * This function inserts a ProConBlock into a ProConBlockLink right after the specified orderProConBlock.
+ * It first detaches the insertProConBlock from its current position in the ProConBlockLink.
+ * If the insertProConBlock is the last ProConBlock in the ProConBlockLink, it updates the lastProConBlock field of the ProConBlockLink.
+ * It then inserts the insertProConBlock right after the orderProConBlock.
+ * If the orderProConBlock is the headProConBlock of the ProConBlockLink, it sets the perProConBlock field of the insertProConBlock to NULL.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink where the ProConBlock will be inserted.
+ * @param orderProConBlock Pointer to the ProConBlock after which the ProConBlock will be inserted.
+ * @param insertProConBlock Pointer to the ProConBlock to be inserted into the ProConBlockLink.
+ */
+inline static void
+insertProConBlockToOrderLink(
+        ProConBlockLink *proConBlockLink,
+        ProConBlock *orderProConBlock,
+        ProConBlock *insertProConBlock
+) {
+    // Detach the insertProConBlock from its current position in the ProConBlockLink
     insertProConBlock->perProConBlock->aftProConBlock = insertProConBlock->aftProConBlock;
     if (insertProConBlock->aftProConBlock != NULL) {
         insertProConBlock->aftProConBlock->perProConBlock = insertProConBlock->perProConBlock;
     } else {
-        // 4.末尾值处理，当insert data 是最后的值时， order值一定时last data
+        // If the insertProConBlock is the last ProConBlock in the ProConBlockLink, update the lastProConBlock field of the ProConBlockLink
         proConBlockLink->lastProConBlock = insertProConBlock->perProConBlock;
     }
 
-    // 2.按 将脱下的节点按到指定节点之后上
+    // Insert the insertProConBlock right after the orderProConBlock
     if (orderProConBlock != proConBlockLink->headProConBlock) {
         insertProConBlock->perProConBlock = orderProConBlock;
     } else {
@@ -214,23 +255,20 @@ inline static void insertProConBlockToOrderLink(
     orderProConBlock->aftProConBlock = insertProConBlock;
 }
 
-
+/**
+ * @brief Sorts a ProConBlockLink based on a provided comparison function.
+ *
+ * This function sorts a ProConBlockLink using an algorithm similar to insertion sort.
+ * It iterates over the ProConBlockLink, and for each ProConBlock, it finds the correct position for it based on the provided comparison function.
+ * If the ProConBlock needs to be moved, it is inserted at the correct position by calling the insertProConBlockToOrderLink function.
+ * If the ProConBlock does not need to be moved, the function moves on to the next ProConBlock.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink to be sorted.
+ * @param compare Function pointer to the comparison function used for sorting. The comparison function should take two ProConBlock pointers as parameters and return a boolean value indicating whether the first ProConBlock should come before the second ProConBlock in the sorted ProConBlockLink.
+ */
 void sortLinkFromLinkParam(ProConBlockLink *proConBlockLink, Compare compare) {
-    /*
-     * @Param:
-     *  proConBlockLink: process control block link
-     *  compare: sort compare function.
-     *
-     * @Description:
-     *  Used to sort linked lists according to sort comparison function.
-     */
 
-    // 下面使用类似数组中的插入排序，一致的思想
-    // order         ↓
-    // insertIndex   ↓
-    // insertData            ↓
-    // H        ->  [1] <-> [2] <-> [3] -> NULL
-
+    // If the ProConBlockLink is empty or contains only one ProConBlock, there is nothing to sort
     if (proConBlockLink->headProConBlock->aftProConBlock == NULL ||
         proConBlockLink->headProConBlock->aftProConBlock == proConBlockLink->lastProConBlock)
         return;
@@ -243,6 +281,7 @@ void sortLinkFromLinkParam(ProConBlockLink *proConBlockLink, Compare compare) {
         insertData = order->aftProConBlock;
         insertIndex = order;
 
+        // Find the correct position for the insertData ProConBlock
         while (insertIndex != NULL && compare(insertData, insertIndex)) {
             insertIndex = insertIndex->perProConBlock;
         }
@@ -250,25 +289,29 @@ void sortLinkFromLinkParam(ProConBlockLink *proConBlockLink, Compare compare) {
             insertIndex = proConBlockLink->headProConBlock;
         }
 
+        // If the insertData ProConBlock needs to be moved, insert it at the correct position
         if (insertIndex != order) {
             insertProConBlockToOrderLink(proConBlockLink, insertIndex, insertData);
         } else {
-            // 3.归 如果没有发生交换，则往后移动一位，否则应当不移动
+            // If the insertData ProConBlock does not need to be moved, move on to the next ProConBlock
             order = order->aftProConBlock;
         }
 
     }
 }
 
-
+/**
+ * @brief Removes the last ProConBlock from a ProConBlockLink.
+ *
+ * This function removes the last ProConBlock from a ProConBlockLink and deallocates the memory used by it.
+ * If the last ProConBlock is not NULL, it checks if it is the only ProConBlock in the ProConBlockLink (i.e., it is the next ProConBlock of the headProConBlock).
+ * If it is not the only ProConBlock, it retrieves the previous ProConBlock of the last ProConBlock, destroys the last ProConBlock, and updates the lastProConBlock field of the ProConBlockLink to the previous ProConBlock.
+ * If it is the only ProConBlock, it destroys the last ProConBlock and sets the aftProConBlock field of the headProConBlock and the lastProConBlock field of the ProConBlockLink to NULL.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink from which the last ProConBlock will be removed.
+ * @param allocator Pointer to the Allocator structure used for memory management.
+ */
 void popBlackFromLink(ProConBlockLink *proConBlockLink, Allocator *allocator) {
-    /*
-     * @Param:
-     *  proConBlockLink: process control block link.
-     *
-     * @Description:
-     *  Remove the last process control block in the process control block linked list.
-     */
 
     if (proConBlockLink->lastProConBlock != NULL) {
         if (proConBlockLink->headProConBlock->aftProConBlock != proConBlockLink->lastProConBlock) {
@@ -288,14 +331,19 @@ void popBlackFromLink(ProConBlockLink *proConBlockLink, Allocator *allocator) {
     }
 }
 
+/**
+ * @brief Removes the first ProConBlock from a ProConBlockLink.
+ *
+ * This function removes the first ProConBlock (the one after the head) from a ProConBlockLink and deallocates the memory used by it.
+ * If the aftProConBlock field of the headProConBlock in the ProConBlockLink is not NULL, it means the ProConBlockLink contains ProConBlocks.
+ * In this case, it retrieves the next ProConBlock of the first ProConBlock, destroys the first ProConBlock, and sets the aftProConBlock field of the headProConBlock to the next ProConBlock.
+ * If the next ProConBlock is not NULL, it sets the perProConBlock field of the next ProConBlock to NULL.
+ * If the next ProConBlock is NULL, it means the ProConBlockLink is now empty, so it sets the lastProConBlock field of the ProConBlockLink to NULL.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink from which the first ProConBlock will be removed.
+ * @param allocator Pointer to the Allocator structure used for memory management.
+ */
 void popFrontFromLink(ProConBlockLink *proConBlockLink, Allocator *allocator) {
-    /*
-     * @Param:
-     *  proConBlockLink: process control block link.
-     *
-     * @Description:
-     *  Remove the front process control block in the process control block linked list.
-     */
 
     if (proConBlockLink->headProConBlock->aftProConBlock != NULL) {
         // [h] -> [] <-> [] <-> []
@@ -311,17 +359,20 @@ void popFrontFromLink(ProConBlockLink *proConBlockLink, Allocator *allocator) {
     }
 }
 
+/**
+ * @brief Inserts a ProConBlock into a ProConBlockLink based on a provided comparison function.
+ *
+ * This function inserts a ProConBlock into a ProConBlockLink in a position determined by the provided comparison function.
+ * If the ProConBlockLink is empty, it adds the ProConBlock as the first element after the head.
+ * If the ProConBlockLink is not empty, it finds the correct position for the ProConBlock by iterating over the ProConBlockLink and using the comparison function.
+ * If the ProConBlock should be inserted at the beginning of the ProConBlockLink, it calls the pushToLink function to insert it.
+ * If the ProConBlock should be inserted in the middle or at the end of the ProConBlockLink, it adjusts the perProConBlock and aftProConBlock pointers of the surrounding ProConBlocks to insert it.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink where the ProConBlock will be inserted.
+ * @param proConBlock Pointer to the ProConBlock to be inserted into the ProConBlockLink.
+ * @param compare Function pointer to the comparison function used for determining the position of the ProConBlock in the ProConBlockLink. The comparison function should take two ProConBlock pointers as parameters and return a boolean value indicating whether the first ProConBlock should come before the second ProConBlock in the ProConBlockLink.
+ */
 void insertToLinkFromParam(ProConBlockLink *proConBlockLink, ProConBlock *proConBlock, Compare compare) {
-    /*
-     * @Param:
-     *  proConBlockLink: process control block link.
-     *  proConBlock: process control block.
-     *  compare: The contrast function used to determine the collation.
-     *
-     * @Description:
-     *  When inserting a linked list, insert it to the specified location
-     *  according to the contrast function.
-     */
 
     if (proConBlockLink->headProConBlock->aftProConBlock == NULL) {
         // [] -> []
@@ -353,20 +404,23 @@ void insertToLinkFromParam(ProConBlockLink *proConBlockLink, ProConBlock *proCon
     }
 }
 
-// sort
+/**
+ * @brief Reverses the order of ProConBlocks in a ProConBlockLink.
+ *
+ * This function reverses the order of ProConBlocks in a ProConBlockLink.
+ * It starts from the head of the ProConBlockLink and iteratively moves each ProConBlock to the end of the ProConBlockLink.
+ * The function continues until all ProConBlocks have been moved, resulting in the original order being reversed.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink whose ProConBlocks will be reversed.
+ */
 void reverseProConBlockFromLink(ProConBlockLink *proConBlockLink) {
-    /*
-     * @Param:
-     *  proConBlockLink: process control block link
-     *
-     * @Description:
-     *  Used reverse process control block from link.
-     */
+
     ProConBlock *orderProConBlock = proConBlockLink->headProConBlock->aftProConBlock;
     ProConBlock *insertProConBlock = proConBlockLink->lastProConBlock;
     ProConBlock *oldFirstProConBlock = proConBlockLink->headProConBlock->aftProConBlock;
 
-    if (orderProConBlock != NULL && insertProConBlock != NULL && orderProConBlock == insertProConBlock)
+    // If the ProConBlockLink is empty or contains only one ProConBlock, there is nothing to reverse
+    if (orderProConBlock == NULL || insertProConBlock == NULL || orderProConBlock == insertProConBlock)
         return;
 
     while (true) {
@@ -411,30 +465,39 @@ void reverseProConBlockFromLink(ProConBlockLink *proConBlockLink) {
     }
 }
 
+/**
+ * @brief Implements the First-Come-First-Serve scheduling algorithm for a ProConBlockLink.
+ *
+ * This function implements the First-Come-First-Serve scheduling algorithm for a ProConBlockLink.
+ * It simply reverses the order of ProConBlocks in the ProConBlockLink by calling the reverseProConBlockFromLink function.
+ * As a result, the ProConBlock that was added first will be the first one to be executed, and the ProConBlock that was added last will be the last one to be executed.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink to be scheduled.
+ */
 void firstComeFirstServe(ProConBlockLink *proConBlockLink) {
-    /*
-     * @Param:
-     *  proConBlockLink: process control block link
-     *
-     * @Description:
-     *  process scheduling algorithm first come first server implement.
-     */
-
     reverseProConBlockFromLink(proConBlockLink);
 }
 
+/**
+ * @brief Inserts a ProConBlock into a ProConBlockLink after a specific ProConBlock with the same priority.
+ *
+ * This function inserts a ProConBlock (quick) into a ProConBlockLink right after a specified ProConBlock (slow).
+ * It first detaches the quick ProConBlock from its current position in the ProConBlockLink.
+ * If the quick ProConBlock is not the last ProConBlock in the ProConBlockLink, it updates the perProConBlock and aftProConBlock pointers of the surrounding ProConBlocks.
+ * It then inserts the quick ProConBlock right after the slow ProConBlock.
+ * If the slow ProConBlock is the first ProConBlock in the ProConBlockLink (i.e., it is the next ProConBlock of the headProConBlock), it sets the perProConBlock field of the quick ProConBlock to NULL.
+ * Otherwise, it adjusts the perProConBlock and aftProConBlock pointers of the surrounding ProConBlocks to insert the quick ProConBlock.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink where the ProConBlock will be inserted.
+ * @param slow Pointer to the ProConBlock after which the ProConBlock will be inserted.
+ * @param quick Pointer to the ProConBlock to be inserted into the ProConBlockLink.
+ */
 inline static void
-insertProConBlockToSamePriorityAfter(ProConBlockLink *proConBlockLink, ProConBlock *slow, ProConBlock *quick) {
-    /*
-     * @Param:
-     *  proConBlockLink: process control block link.
-     *  slow: process control block, Used to specify the ordered insertion position.
-     *  quick: process control block, used to for each process control block link.
-     *
-     * @Description:
-     *  after inserting the quick process control block into the slow process port to the block.
-     */
-
+insertProConBlockToSamePriorityAfter(
+        ProConBlockLink *proConBlockLink,
+        ProConBlock *slow,
+        ProConBlock *quick
+) {
     // slow   ↓
     // quick  ↓
     // [h] -> [] <-> [] <-> [] <-> [] -> NULL
@@ -459,18 +522,27 @@ insertProConBlockToSamePriorityAfter(ProConBlockLink *proConBlockLink, ProConBlo
     }
 }
 
+/**
+ * @brief Orders ProConBlocks in a ProConBlockLink based on a specified priority.
+ *
+ * This function iterates over a ProConBlockLink and for each ProConBlock with the specified priority, it finds the correct position for it.
+ * The correct position is determined by the order of the ProConBlocks in the ProConBlockLink and the specified priority.
+ * If a ProConBlock with the specified priority needs to be moved, it is inserted right after the specified slow ProConBlock by calling the insertProConBlockToSamePriorityAfter function.
+ * The function continues until all ProConBlocks have been checked, and returns the last ProConBlock with the specified priority.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink to be ordered.
+ * @param slow Pointer to the ProConBlock after which ProConBlocks with the specified priority will be inserted.
+ * @param quick Pointer to the ProConBlock from where the function starts checking for ProConBlocks with the specified priority.
+ * @param priority The priority based on which the ProConBlocks will be ordered.
+ * @return Pointer to the last ProConBlock with the specified priority.
+ */
 inline static ProConBlock *
-orderProConBlockThroughPriority(ProConBlockLink *proConBlockLink, ProConBlock *slow, ProConBlock *quick,
-                                ProcessPriority priority) {
-    /*
-     * @Param:
-     *  proConBlockLink: process control block link.
-     *  slow: process control block, Used to specify the ordered insertion position.
-     *  quick: process control block, used to for each process control block link.
-     *
-     * @Description:
-     *  Sort the chain of process control blocks by using the priority of process control blocks.
-     */
+orderProConBlockThroughPriority(
+        ProConBlockLink *proConBlockLink,
+        ProConBlock *slow,
+        ProConBlock *quick,
+        ProcessPriority priority
+) {
 
     while (quick != NULL) {
         if (quick->p_priority == priority) {
@@ -484,14 +556,18 @@ orderProConBlockThroughPriority(ProConBlockLink *proConBlockLink, ProConBlock *s
     return slow;
 }
 
+/**
+ * @brief Schedules ProConBlocks in a ProConBlockLink based on their priority.
+ *
+ * This function orders the ProConBlocks in a ProConBlockLink based on their priority.
+ * It first checks if the ProConBlockLink is empty or contains only one ProConBlock. If so, it returns without making any changes.
+ * If the ProConBlockLink contains more than one ProConBlock, it starts from the first ProConBlock (the one after the head) and orders the ProConBlocks based on their priority.
+ * The ordering is done by calling the orderProConBlockThroughPriority function for each priority level, starting from exigency and ending with low.
+ * The orderProConBlockThroughPriority function inserts each ProConBlock with the specified priority into the correct position in the ProConBlockLink.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink to be scheduled.
+ */
 void priorityScheduling(ProConBlockLink *proConBlockLink) {
-    /*
-     * @Param:
-     *  proConBlock: process control block.
-     *
-     * @Description:
-     *  The linked list of process control blocks is sorted by the priority of the process control blocks.
-     */
 
     if (proConBlockLink->headProConBlock->aftProConBlock == NULL ||
         proConBlockLink->headProConBlock->aftProConBlock == proConBlockLink->lastProConBlock)
@@ -509,16 +585,19 @@ void priorityScheduling(ProConBlockLink *proConBlockLink) {
     orderProConBlockThroughPriority(proConBlockLink, slow, slow, low);
 }
 
-// exe
+/**
+ * @brief Executes all ProConBlocks in a ProConBlockLink.
+ *
+ * This function iterates over a ProConBlockLink and executes each ProConBlock.
+ * For each ProConBlock, it first prints a message indicating the start of execution and displays the details of the ProConBlock.
+ * It then sets the process state of the ProConBlock to running and calls the callback function of the ProConBlock.
+ * After the callback function returns, it sets the execute time of the ProConBlock to the total time and the process state to suspended_ready.
+ * It then displays the details of the ProConBlock again and prints a message indicating the end of execution.
+ * The function continues until all ProConBlocks have been executed.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink whose ProConBlocks will be executed.
+ */
 void executeOver(ProConBlockLink *proConBlockLink) {
-    /*
-     * @Param:
-     *  proConBlockLink: process control block link.
-     *
-     * @Description:
-     *  All nodes on the process control block linked list are executed sequentially,
-     *  and each process control block is completed before moving back.
-     */
 
     ProConBlock *proConBlock = proConBlockLink->headProConBlock->aftProConBlock;
     while (proConBlock != NULL) {
@@ -536,30 +615,37 @@ void executeOver(ProConBlockLink *proConBlockLink) {
     }
 }
 
+/**
+ * @brief Removes a ProConBlock from a ProConBlockLink.
+ *
+ * This function removes a ProConBlock (referred to as loopLink) from a ProConBlockLink.
+ * It first updates the aftProConBlock pointer of the previous ProConBlock and the perProConBlock pointer of the next ProConBlock to bypass the loopLink ProConBlock.
+ * It then returns the loopLink ProConBlock, which has been removed from the ProConBlockLink but is still allocated.
+ *
+ * @param loopLink Pointer to the ProConBlock to be removed from the ProConBlockLink.
+ * @return Pointer to the removed ProConBlock.
+ */
 inline static ProConBlock *removeNextProConBlockFromLink(ProConBlock *loopLink) {
-    /*
-     * @Param:
-     *  loopLink: member is process control block, process control block loop link.
-     *
-     * @Description:
-     *  Removes the latter process control block in the current loop chain
-     *  from the process control block circular linked list.
-     */
 
     loopLink->perProConBlock->aftProConBlock = loopLink->aftProConBlock;
     loopLink->aftProConBlock->perProConBlock = loopLink->perProConBlock;
     return loopLink;
 }
 
+/**
+ * @brief Executes a ProConBlock and updates its state and execution time.
+ *
+ * This function executes a ProConBlock and updates its state and execution time based on the result of the execution.
+ * It first sets the process state of the ProConBlock to running and displays its details.
+ * It then checks if the execution time of the ProConBlock plus a time slice is greater than or equal to the total time of the ProConBlock, or if the ProConBlock is the only one in the ProConBlockLink.
+ * If either condition is true, it calls the callback function of the ProConBlock, sets the execute time of the ProConBlock to the total time, and sets the process state to suspended_ready.
+ * If neither condition is true, it calls the callback function of the ProConBlock, increments the execute time by a time slice, and sets the process state to suspended_blocked.
+ * After the execution, it displays the details of the ProConBlock again and returns the ProConBlock.
+ *
+ * @param loopLink Pointer to the ProConBlock to be executed.
+ * @return Pointer to the executed ProConBlock.
+ */
 ProConBlock *runningProConBlockTask(ProConBlock *loopLink) {
-    /*
-     * @Param:
-     *  loopLink: loop process control block link.
-     *
-     * @Description:
-     *  Call the callback function of the process control block
-     *  and return the current process control block
-     */
 
     printf_s("Start running...\n");
     loopLink->p_state = running;
@@ -588,18 +674,25 @@ ProConBlock *runningProConBlockTask(ProConBlock *loopLink) {
     return loopLink;
 }
 
+/**
+ * @brief Reconfigures a ProConBlockLink by inserting a ProConBlock at the beginning.
+ *
+ * This function inserts a ProConBlock (referred to as cache) into a ProConBlockLink at the beginning, right after a specified ProConBlock (referred to as finishLink).
+ * If finishLink is NULL, it means the ProConBlockLink is empty. In this case, it sets the perProConBlock and aftProConBlock fields of the cache ProConBlock to NULL, assigns cache to finishLink, and updates the lastProConBlock field of the ProConBlockLink to cache.
+ * If finishLink is not NULL, it means the ProConBlockLink already contains ProConBlocks. In this case, it sets the perProConBlock field of the cache ProConBlock to NULL, the aftProConBlock field of the cache ProConBlock to finishLink, and the perProConBlock field of the finishLink ProConBlock to cache. It then assigns cache to finishLink.
+ * The function returns the finishLink ProConBlock, which is the first ProConBlock in the ProConBlockLink after the head.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink where the ProConBlock will be inserted.
+ * @param finishLink Pointer to the ProConBlock after which the ProConBlock will be inserted.
+ * @param cache Pointer to the ProConBlock to be inserted into the ProConBlockLink.
+ * @return Pointer to the first ProConBlock in the ProConBlockLink after the head.
+ */
 inline static ProConBlock *
-reconfigurationProConBlockLink(ProConBlockLink *proConBlockLink, ProConBlock *finishLink, ProConBlock *cache) {
-    /*
-     * @Param
-     *  proConBlockLink: process control block link.
-     *  finishLink: execute finish process control block link.
-     *  cache: current finish process control block.
-     *
-     * @Description:
-     *  Call the callback function of the process control block and return
-     *  the current process control block
-     */
+reconfigurationProConBlockLink(
+        ProConBlockLink *proConBlockLink,
+        ProConBlock *finishLink,
+        ProConBlock *cache
+) {
 
     if (finishLink == NULL) {
         cache->perProConBlock = NULL;
@@ -617,17 +710,20 @@ reconfigurationProConBlockLink(ProConBlockLink *proConBlockLink, ProConBlock *fi
     return finishLink;
 }
 
+/**
+ * @brief Implements the Round Robin scheduling algorithm for a ProConBlockLink.
+ *
+ * This function implements the Round Robin scheduling algorithm for a ProConBlockLink.
+ * It first sets up a loop link by connecting the last ProConBlock in the ProConBlockLink to the first ProConBlock.
+ * It then enters a loop where it executes each ProConBlock in the ProConBlockLink for a time slice.
+ * If a ProConBlock finishes execution (i.e., its execution time plus a time slice is greater than or equal to its total time) or if it is the only ProConBlock in the ProConBlockLink, it is moved to the beginning of the ProConBlockLink.
+ * If a ProConBlock does not finish execution, it remains in its current position in the ProConBlockLink.
+ * The function continues until all ProConBlocks have been executed and moved to the beginning of the ProConBlockLink.
+ * Finally, it updates the headProConBlock field of the ProConBlockLink to point to the first ProConBlock in the ProConBlockLink and displays the details of the ProConBlockLink.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink to be scheduled.
+ */
 void roundRobinScheduling(ProConBlockLink *proConBlockLink) {
-    /*
-     * @Params:
-     *  ProConBlockLink * :
-     *      It is a linked list structure composed of the basic unit of process
-     *      task scheduling (process control block (pcb)).
-     *
-     * @Description:
-     *  This function implements the time slice scheduling algorithm (time slice rotation)
-     *  in the process task scheduling algorithm.
-     */
 
     ProConBlock *finishLink = NULL;
     ProConBlock *loopLink = proConBlockLink->headProConBlock->aftProConBlock;
@@ -659,61 +755,75 @@ void roundRobinScheduling(ProConBlockLink *proConBlockLink) {
     displayProConBlockLink(proConBlockLink);
 }
 
+/**
+ * @brief Compares the total time of two ProConBlocks.
+ *
+ * This function compares the total time of two ProConBlocks.
+ * It casts the void pointers p1 and p2 to ProConBlock pointers and retrieves their total time.
+ * It then checks if the total time of the ProConBlock pointed to by p1 is less than the total time of the ProConBlock pointed to by p2.
+ * If it is, it returns true. Otherwise, it returns false.
+ *
+ * @param p1 Void pointer to the first ProConBlock to be compared.
+ * @param p2 Void pointer to the second ProConBlock to be compared.
+ * @return Boolean value indicating whether the total time of the first ProConBlock is less than the total time of the second ProConBlock.
+ */
 inline static _Bool jobTimeCompare(void *p1, void *p2) {
-    /*
-     * @Param:
-     *  p1: process control block
-     *  p2: process control block
-     *
-     * @Description:
-     *  used compare job time compare.
-     */
-
     return ((ProConBlock *) (p1))->p_total_time < ((ProConBlock *) (p2))->p_total_time;
 }
 
+/**
+ * @brief Implements the Shortest Job Next scheduling algorithm for a ProConBlockLink.
+ *
+ * This function sorts the ProConBlocks in a ProConBlockLink based on their total time, from shortest to longest.
+ * It uses the jobTimeCompare function as the comparison function for sorting, which compares the total time of two ProConBlocks.
+ * The sorting is done by calling the sortLinkFromLinkParam function, which sorts a ProConBlockLink using an algorithm similar to insertion sort.
+ * After the function call, the ProConBlock with the shortest total time will be the first ProConBlock in the ProConBlockLink (the one after the head), and the ProConBlock with the longest total time will be the last ProConBlock.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink to be scheduled.
+ */
 void shortestJobNext(ProConBlockLink *proConBlockLink) {
-    /*
-     * @Param:
-     *  proConBlockLink: process control block link.
-     *
-     * @Description:
-     *  implement short job next.
-     */
-
     sortLinkFromLinkParam(proConBlockLink, jobTimeCompare);
 }
 
+/**
+ * @brief Executes a ProConBlockLink using specified sorting and execution functions.
+ *
+ * This function takes a ProConBlockLink and two function pointers as parameters.
+ * The first function pointer (proSortFunc) points to a function that sorts the ProConBlocks in the ProConBlockLink.
+ * The second function pointer (proExeFunc) points to a function that executes the ProConBlocks in the ProConBlockLink.
+ * If proSortFunc is NULL, it defaults to the firstComeFirstServe function.
+ * If proExeFunc is NULL, it defaults to the executeOver function.
+ * It then calls the sorting function and the execution function in order.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink to be executed.
+ * @param proSortFunc Function pointer to the sorting function. If NULL, defaults to firstComeFirstServe.
+ * @param proExeFunc Function pointer to the execution function. If NULL, defaults to executeOver.
+ */
 void runningProConBlockFromLink(
         ProConBlockLink *proConBlockLink,
         void(*proSortFunc)(ProConBlockLink *sortLink),
         void (*proExeFunc)(ProConBlockLink *exeLink)
 ) {
-    /*
-     * @Param:
-     *  proConBlockLink: process control block link
-     *  proSortFunc: process control block sort function.
-     *  proExeFunc: process control block execute function.
-     *
-     * @Description:
-     *  running process control block link through used sort function and execute function.
-     */
     // order execute process link once
     proSortFunc = proSortFunc != NULL ? proSortFunc : firstComeFirstServe;
     proExeFunc = proExeFunc != NULL ? proExeFunc : executeOver;
     proSortFunc(proConBlockLink);
     proExeFunc(proConBlockLink);
-
 }
 
+/**
+ * @brief Displays the details of all ProConBlocks in a ProConBlockLink.
+ *
+ * This function iterates over a ProConBlockLink and calls the displayProConBlock function for each ProConBlock.
+ * It first prints a line of hashes to the console to indicate the start of the ProConBlockLink.
+ * It then retrieves the head ProConBlock of the ProConBlockLink and starts a loop that continues until it has processed all ProConBlocks in the ProConBlockLink.
+ * In each iteration of the loop, it calls the displayProConBlock function to display the details of the current ProConBlock, and then moves on to the next ProConBlock.
+ * After the loop, it prints another line of hashes to the console to indicate the end of the ProConBlockLink.
+ *
+ * @param proConBlockLink Pointer to the ProConBlockLink whose ProConBlocks will be displayed.
+ */
 void displayProConBlockLink(ProConBlockLink *proConBlockLink) {
-    /*
-     * @Param:
-     *  proConBlockLink: process control block link.
-     *
-     * @Description:
-     *  used display process control block link.
-     */
+
     printf_s("#############################################################\n");
     ProConBlock *temp = proConBlockLink->headProConBlock;
     while (temp != NULL) {

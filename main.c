@@ -1,4 +1,4 @@
-#include "process/test/process_scheduling/test_process_scheduling.h"
+#include "process/test/header/test_process_scheduling.h"
 #include "allocation/test/test_allocator.h"
 
 int main() {

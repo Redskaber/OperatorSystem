@@ -33,4 +33,6 @@ add_executable(OperatorSystem main.c
         tools/hashMap/hashMap.h
         tools/hashMapResource/hashMapResource.c
         tools/hashMapResource/hashMapResource.h
+        process/test/process_scheduling/test_reverseProConBlockFromLink.c
+        process/test/header/test_reverseProConBlockFromLink.h
 )

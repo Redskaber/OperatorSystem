@@ -18,6 +18,19 @@ static void deepCopyAllocatorResource(
 );
 
 
+/**
+ * @brief Initializes the AllocatorResource array in the BankProConBlock structure.
+ *
+ * This function initializes the maxResource and assignedResource arrays in the AllocatorResource structure
+ * of the BankProConBlock. It also calculates the needResource array by subtracting the assignedResource from
+ * the maxResource for each resource type. The needResource array is then initialized with these calculated values.
+ *
+ * @param bankProConBlock Pointer to the BankProConBlock structure.
+ * @param maxResourceArr 2D array of maximum resources for each type.
+ * @param assignedResourceArr 2D array of assigned resources for each type.
+ * @param rows Number of rows in the maxResourceArr and assignedResourceArr arrays.
+ * @param systemResource Pointer to the SystemResource structure.
+ */
 void initAllocatorResourceArr(
         BankProConBlock *bankProConBlock,
         ResourceType maxResourceArr[][2],
@@ -45,6 +58,15 @@ void initAllocatorResourceArr(
             systemResource->memory);
 }
 
+/**
+ * @brief Displays the resources in the AllocatorResource structure.
+ *
+ * This function prints the resources in the AllocatorResource structure to the console.
+ * It displays the maxResource, assignedResource, and needResource arrays.
+ * Each resource type and its corresponding number are printed in the format "type|number".
+ *
+ * @param allocatorResource Pointer to the AllocatorResource structure.
+ */
 void displayAllocatorResource(AllocatorResource *allocatorResource) {
     printf_s("###################################\n");
     printf_s("AllocatorResource:\n");
@@ -53,27 +75,38 @@ void displayAllocatorResource(AllocatorResource *allocatorResource) {
     BaseAllocate *temp = NULL;
     for (int i = 0; i < allocatorResource->maxResource->member; ++i) {
         temp = allocatorResource->maxResource->array[i];
-        printf_s("%s|%d\t", resourceTypeToString(temp->type), temp->number);
+        printf_s("%s|%-4d", resourceTypeToString(temp->type), temp->number);
     }
     printf_s("\n");
 
     printf_s("\tassignedResource:\n\t\t");
     for (int i = 0; i < allocatorResource->assignedResource->member; ++i) {
         temp = allocatorResource->assignedResource->array[i];
-        printf_s("%s|%d\t", resourceTypeToString(temp->type), temp->number);
+        printf_s("%s|%-4d", resourceTypeToString(temp->type), temp->number);
     }
     printf_s("\n");
 
     printf_s("\tneedResource:\n\t\t");
     for (int i = 0; i < allocatorResource->needResource->member; ++i) {
         temp = allocatorResource->needResource->array[i];
-        printf_s("%s|%d\t", resourceTypeToString(temp->type), temp->number);
+        printf_s("%s|%-4d", resourceTypeToString(temp->type), temp->number);
     }
     printf_s("\n");
 
     printf_s("###################################\n");
 }
 
+/**
+ * @brief Destroys the AllocatorResource structure.
+ *
+ * This function deallocates the memory used by the AllocatorResource structure.
+ * It first checks if the AllocatorResource pointer is not NULL.
+ * If it is not NULL, it destroys the maxResource, assignedResource, and needResource arrays in the AllocatorResource structure.
+ * Finally, it deallocates the memory used by the AllocatorResource structure itself.
+ *
+ * @param allocatorResource Pointer to the AllocatorResource structure to be destroyed.
+ * @param allocator Pointer to the Allocator structure used for memory management.
+ */
 static void destroyAllocatorResource(AllocatorResource *allocatorResource, Allocator *allocator) {
     if (allocatorResource != NULL) {
         destroyBaseAllocateArr(allocatorResource->maxResource, allocator);
@@ -84,6 +117,21 @@ static void destroyAllocatorResource(AllocatorResource *allocatorResource, Alloc
     }
 }
 
+/**
+ * @brief Initializes a BankProConBlock structure.
+ *
+ * This function allocates memory for a new BankProConBlock structure and initializes its fields.
+ * It assigns the provided process ID, name, total time, priority, and callback function to the ProConBlock base structure.
+ * It also initializes the AllocatorResource structure of the BankProConBlock.
+ *
+ * @param p_id The process ID to be assigned to the ProConBlock.
+ * @param p_name The process name to be assigned to the ProConBlock.
+ * @param p_total_time The total time to be assigned to the ProConBlock.
+ * @param p_priority The priority to be assigned to the ProConBlock.
+ * @param callBack The callback function to be assigned to the ProConBlock.
+ * @param allocator Pointer to the Allocator structure used for memory management.
+ * @return Pointer to the newly created BankProConBlock structure.
+ */
 BankProConBlock *initBankProConBlock(
         int p_id,
         char *p_name,
@@ -100,6 +148,17 @@ BankProConBlock *initBankProConBlock(
     return newBankProConBlock;
 }
 
+/**
+ * @brief Initializes a BankProConBlock structure with an existing ProConBlock.
+ *
+ * This function allocates memory for a new BankProConBlock structure and initializes its fields.
+ * It assigns the provided ProConBlock to the base structure of the BankProConBlock.
+ * It also initializes the AllocatorResource structure of the BankProConBlock.
+ *
+ * @param proConBlock Pointer to the existing ProConBlock structure.
+ * @param allocator Pointer to the Allocator structure used for memory management.
+ * @return Pointer to the newly created BankProConBlock structure.
+ */
 BankProConBlock *initBankProConBlockUsed(ProConBlock *proConBlock, Allocator *allocator) {
     BankProConBlock *newBankProConBlock = allocator->allocate(allocator, sizeof(BankProConBlock));
     assert(newBankProConBlock != NULL);
@@ -109,11 +168,30 @@ BankProConBlock *initBankProConBlockUsed(ProConBlock *proConBlock, Allocator *al
     return newBankProConBlock;
 }
 
+/**
+ * @brief Displays the BankProConBlock structure.
+ *
+ * This function prints the details of the BankProConBlock structure to the console.
+ * It displays the ProConBlock base structure and the AllocatorResource structure.
+ *
+ * @param bankProConBlock Pointer to the BankProConBlock structure.
+ */
 void displayBankProConBlock(BankProConBlock *bankProConBlock) {
     displayProConBlock(bankProConBlock->base);
     displayAllocatorResource(bankProConBlock->resource);
 }
 
+/**
+ * @brief Destroys the BankProConBlock structure.
+ *
+ * This function deallocates the memory used by the BankProConBlock structure.
+ * It first checks if the BankProConBlock pointer is not NULL.
+ * If it is not NULL, it destroys the ProConBlock base structure and the AllocatorResource structure in the BankProConBlock.
+ * Finally, it deallocates the memory used by the BankProConBlock structure itself.
+ *
+ * @param bankProConBlock Pointer to the BankProConBlock structure to be destroyed.
+ * @param allocator Pointer to the Allocator structure used for memory management.
+ */
 void destroyBankProConBlock(BankProConBlock *bankProConBlock, Allocator *allocator) {
     if (bankProConBlock != NULL) {
         destroyProConBlock(bankProConBlock->base, allocator);
@@ -122,6 +200,19 @@ void destroyBankProConBlock(BankProConBlock *bankProConBlock, Allocator *allocat
     }
 }
 
+/**
+ * @brief Initializes a Banker structure.
+ *
+ * This function allocates memory for a new Banker structure and initializes its fields.
+ * It sets the size to 0 and the maxSize to BANKER_INIT_ARRAY_MEMBER.
+ * It also allocates memory for the array of BankProConBlock pointers and initializes the availableResource array.
+ * The availableResource array is initialized with the provided availableResourceArr 2D array.
+ *
+ * @param availableResourceArr 2D array of available resources.
+ * @param rows Number of rows in the availableResourceArr array.
+ * @param systemResource Pointer to the SystemResource structure used for memory management.
+ * @return Pointer to the newly created Banker structure.
+ */
 Banker *initBanker(
         ResourceType availableResourceArr[][2],
         int rows,
@@ -149,6 +240,18 @@ Banker *initBanker(
     return newBanker;
 }
 
+/**
+ * @brief Destroys the Banker structure.
+ *
+ * This function deallocates the memory used by the Banker structure.
+ * It first checks if the Banker pointer is not NULL.
+ * If it is not NULL, it iterates over the array of BankProConBlock pointers and destroys each BankProConBlock.
+ * It then deallocates the memory used by the array of BankProConBlock pointers and the availableResource array in the Banker structure.
+ * Finally, it deallocates the memory used by the Banker structure itself and sets the Banker pointer to NULL.
+ *
+ * @param banker Pointer to the Banker structure to be destroyed.
+ * @param systemResource Pointer to the SystemResource structure used for memory management.
+ */
 void destroyBanker(Banker *banker, SystemResource *systemResource) {
     if (banker != NULL) {
         if (banker->array != NULL) {
@@ -165,6 +268,18 @@ void destroyBanker(Banker *banker, SystemResource *systemResource) {
     }
 }
 
+/**
+ * @brief Increases the capacity of the BankProConBlock array in the Banker structure.
+ *
+ * This function reallocates memory for the BankProConBlock array in the Banker structure to increase its capacity.
+ * The new capacity is twice the current capacity, unless the current capacity is less than 5, in which case the new capacity is set to 5.
+ * If the reallocation is successful, the function updates the maxSize field of the Banker structure and returns true.
+ * If the reallocation fails, the function returns false.
+ *
+ * @param banker Pointer to the Banker structure whose BankProConBlock array capacity is to be increased.
+ * @param systemResource Pointer to the SystemResource structure used for memory management.
+ * @return Boolean value indicating whether the capacity increase was successful.
+ */
 static _Bool upCapacityBankerProConBlockArr(Banker *banker, SystemResource *systemResource) {
     Allocator *allocator = systemResource->memory;
 
@@ -181,6 +296,17 @@ static _Bool upCapacityBankerProConBlockArr(Banker *banker, SystemResource *syst
     return true;
 }
 
+/**
+ * @brief Adds a BankProConBlock to the Banker structure.
+ *
+ * This function adds a BankProConBlock to the array of BankProConBlock pointers in the Banker structure.
+ * If the size of the array is equal to or greater than its maximum size, the function increases the capacity of the array.
+ * The BankProConBlock is then added to the end of the array and the size of the array is incremented.
+ *
+ * @param banker Pointer to the Banker structure to which the BankProConBlock is to be added.
+ * @param bankProConBlock Pointer to the BankProConBlock to be added.
+ * @param systemResource Pointer to the SystemResource structure used for memory management.
+ */
 void pushProConBlockToBanker(Banker *banker, BankProConBlock *bankProConBlock, SystemResource *systemResource) {
     if (banker->size >= banker->maxSize) {
         assert(upCapacityBankerProConBlockArr(banker, systemResource) == true);
@@ -188,23 +314,26 @@ void pushProConBlockToBanker(Banker *banker, BankProConBlock *bankProConBlock, S
     banker->array[banker->size++] = bankProConBlock;
 }
 
+/**
+ * @brief Checks whether resources can be allocated.
+ *
+ * This function checks if the resources requested by a process can be allocated from the available resources.
+ * It creates a HashMapResource from the available resources, where each resource type is a key and its quantity is the value.
+ * It then iterates over the requested resources. For each requested resource, it checks if the resource is available in sufficient quantity.
+ * If the resource is available, it subtracts the requested quantity from the available quantity.
+ * If the resource is not available in sufficient quantity, it rolls back the changes made to the available resources and returns false.
+ * If all requested resources can be allocated, it returns true.
+ *
+ * @param rows The number of resource types.
+ * @param assignedResourceArr 2D array of requested resources, where each row contains a resource type and its requested quantity.
+ * @param availableResource Pointer to the BaseAllocateArr structure representing the available resources.
+ * @return Boolean value indicating whether the resources can be allocated.
+ */
 static _Bool whetherResourcesCanBeAllocated(
         int rows,
         ResourceType assignedResourceArr[rows][2],
         BaseAllocateArr *availableResource
 ) {
-    /*
-     * @Params:
-     *  rows: rows
-     *  assignedResourceArr: assigned Resource Array
-     *  availableResource: available Resource array
-     *
-     * @Description:
-     *  The reference address of the data is stored using a custom hashMap,
-     *  enabling indirect modification of the value to be changed by altering the value pointed to by the address.
-     *  The modified value is restored through reverse traversal, achieving a rollback effect.
-     */
-
     HashMapResource *mapResource = createHashMapResource(availableResource->member);
 
     for (int i = 0; i < availableResource->member; ++i) {
@@ -236,6 +365,21 @@ static _Bool whetherResourcesCanBeAllocated(
     return flag;
 }
 
+/**
+ * @brief Adds an array of ProConBlocks to the Banker structure.
+ *
+ * This function iterates over an array of ProConBlocks and adds each one to the Banker structure.
+ * For each ProConBlock, it creates a BankProConBlock and initializes its AllocatorResource structure with the corresponding resources from the bankerProConBlockGroup array.
+ * It then checks if the resources can be allocated from the available resources in the Banker structure.
+ * If the resources can be allocated, it initializes the AllocatorResource structure of the BankProConBlock and adds the BankProConBlock to the Banker structure.
+ *
+ * @param banker Pointer to the Banker structure to which the ProConBlocks are to be added.
+ * @param pcbArr Array of pointers to the ProConBlocks to be added.
+ * @param member The number of ProConBlocks in the pcbArr array.
+ * @param rows The number of resource types.
+ * @param bankerProConBlockGroup 3D array of resources for each ProConBlock, where each row contains a resource type, its maximum quantity, and its assigned quantity.
+ * @param systemResource Pointer to the SystemResource structure used for memory management.
+ */
 void pushProConBlockArrToBanker(
         Banker *banker,
         ProConBlock **pcbArr,
@@ -262,6 +406,15 @@ void pushProConBlockArrToBanker(
     }
 }
 
+/**
+ * @brief Initializes a HashMap with the available resources.
+ *
+ * This function iterates over the available resources and inserts each one into the HashMap.
+ * The resource type is used as the key and the quantity of the resource is used as the value.
+ *
+ * @param map Pointer to the HashMap to be initialized.
+ * @param availableResource Pointer to the BaseAllocateArr structure representing the available resources.
+ */
 static void initHashMap(HashMap *map, BaseAllocateArr *availableResource) {
     for (int i = 0; i < availableResource->member; ++i) {
         char *key = resourceTypeToString(availableResource->array[i]->type);
@@ -270,6 +423,20 @@ static void initHashMap(HashMap *map, BaseAllocateArr *availableResource) {
     }
 }
 
+/**
+ * @brief Checks whether resources can be allocated.
+ *
+ * This function checks if the resources requested by a process can be allocated from the available resources.
+ * It creates a HashMap from the available resources, where each resource type is a key and its quantity is the value.
+ * It then iterates over the requested resources. For each requested resource, it checks if the resource is available in sufficient quantity.
+ * If the resource is available, it increments a counter.
+ * If all requested resources can be allocated (i.e., the counter equals the number of requested resources), it returns true.
+ * Otherwise, it returns false.
+ *
+ * @param needResource Pointer to the BaseAllocateArr structure representing the requested resources.
+ * @param availableResource Pointer to the BaseAllocateArr structure representing the available resources.
+ * @return Boolean value indicating whether the resources can be allocated.
+ */
 static _Bool canBeAllocated(BaseAllocateArr *needResource, BaseAllocateArr *availableResource) {
     HashMap *map = createHashMap(availableResource->member);
     initHashMap(map, availableResource);
@@ -286,6 +453,17 @@ static _Bool canBeAllocated(BaseAllocateArr *needResource, BaseAllocateArr *avai
     return counter == needResource->member;
 }
 
+/**
+ * @brief Checks the security of resource allocation.
+ *
+ * This function iterates over the BankProConBlocks in the Banker structure and checks if the resources requested by each BankProConBlock can be allocated from the available resources.
+ * If the resources can be allocated, it creates a deep copy of the BankProConBlock and attempts to allocate the resources.
+ * It then checks if the resources were successfully allocated. If they were, it continues to the next BankProConBlock.
+ * If the resources were not successfully allocated, it destroys the deep copy of the BankProConBlock and continues to the next BankProConBlock.
+ *
+ * @param banker Pointer to the Banker structure containing the BankProConBlocks and the available resources.
+ * @param systemResource Pointer to the SystemResource structure used for memory management.
+ */
 void checkResourceSecurity(Banker *banker, SystemResource *systemResource) {
     // find can allocate banker pcb
     int member = banker->size;
@@ -313,6 +491,17 @@ void checkResourceSecurity(Banker *banker, SystemResource *systemResource) {
 }
 
 
+/**
+ * @brief Creates a deep copy of a BankProConBlock structure.
+ *
+ * This function creates a new BankProConBlock structure and initializes it with the values from the provided BankProConBlock.
+ * It uses the initBankProConBlock function to create the new BankProConBlock with the process ID, name, total time, priority, and callback function from the provided BankProConBlock.
+ * It then uses the deepCopyAllocatorResource function to create a deep copy of the AllocatorResource structure from the provided BankProConBlock and assigns it to the new BankProConBlock.
+ *
+ * @param bankProConBlock Pointer to the BankProConBlock structure to be copied.
+ * @param systemResource Pointer to the SystemResource structure used for memory management.
+ * @return Pointer to the newly created BankProConBlock structure.
+ */
 static BankProConBlock *deepCopyBankProConBlock(BankProConBlock *bankProConBlock, SystemResource *systemResource) {
     BankProConBlock *newBankProConBlock = initBankProConBlock(
             bankProConBlock->base->p_id,
@@ -330,6 +519,17 @@ static BankProConBlock *deepCopyBankProConBlock(BankProConBlock *bankProConBlock
     return newBankProConBlock;
 }
 
+/**
+ * @brief Creates a deep copy of an AllocatorResource structure.
+ *
+ * This function creates a deep copy of the provided AllocatorResource structure.
+ * It iterates over the maxResource, assignedResource, and needResource arrays in the source AllocatorResource structure.
+ * For each resource in these arrays, it creates a copy of the resource and adds it to the corresponding array in the destination AllocatorResource structure.
+ *
+ * @param destResource Pointer to the AllocatorResource structure where the copied resources will be stored.
+ * @param sourceResource Pointer to the AllocatorResource structure to be copied.
+ * @param systemResource Pointer to the SystemResource structure used for memory management.
+ */
 static void deepCopyAllocatorResource(
         AllocatorResource *destResource,
         AllocatorResource *sourceResource,
