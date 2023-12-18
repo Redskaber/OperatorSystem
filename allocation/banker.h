@@ -97,6 +97,18 @@ extern void pushProConBlockArrToBanker(
         SystemResource *systemResource
 );
 
-extern _Bool checkResourceSecurity(Banker *banker, SystemResource *systemResource);
+extern void bankerResourceAllocatedAlgorithm(
+        int mp, ProConBlock *pcbArr[mp],
+        int mr, ResourceType availableResourceArr[mr][2],
+        ResourceType bankerProConBlockGroup[mp][mr][3],
+        SystemResource *systemResource
+);
+
+extern _Bool
+checkResourceSecurity(
+        Banker *banker,
+        SystemResource *systemResource,
+        BankProConBlock *(*orderExecute)[banker->size]
+);
 
 #endif //OPERATORSYSTEM_BANKER_H

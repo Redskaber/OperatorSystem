@@ -27,7 +27,6 @@ void test_allocator() {
             {cpu,     20},
             {gpu,     20},
             {network, 10}};
-    Banker *banker = initBanker(availableResource, 4, sr);
 
     ResourceType bankerProConBlockGroup[5][4][3] = {
             {
@@ -94,12 +93,13 @@ void test_allocator() {
             proCallBack, sr->memory);
 
     ProConBlock *pcbArr[5] = {pcb1, pcb2, pcb3, pcb4, pcb5};
-    pushProConBlockArrToBanker(banker, pcbArr, 5, 4, bankerProConBlockGroup, sr);
-    displayBaseAllocateArr(banker->availableResource);
-    checkResourceSecurity(banker, sr);
 
-    displaySystemResource(sr);
-    destroyBanker(banker, sr);
+    bankerResourceAllocatedAlgorithm(
+            5, pcbArr,
+            4, availableResource,
+            bankerProConBlockGroup,
+            sr
+    );
 
     displaySystemResource(sr);
     destroySystemResource(sr);

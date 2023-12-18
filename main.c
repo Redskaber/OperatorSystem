@@ -21,6 +21,7 @@ int main() {
     test_allocators();
     test_Banker();
     testBankerSecurity();
+    test_allocator();
 
     return 0;
 }

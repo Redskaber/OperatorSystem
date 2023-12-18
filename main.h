@@ -12,4 +12,5 @@
 #include "allocation/test/header/test_initBanker.h"
 #include "allocation/test/header/test_checkResourceSecurity.h"
 
+#include "allocation/test/header/test_allocator.h"
 #endif //OPERATORSYSTEM_MAIN_H

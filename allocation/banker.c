@@ -476,7 +476,8 @@ static _Bool canBeAllocated(BaseAllocateArr *needResource, BaseAllocateArr *avai
 }
 
 
-static void allocatedResourceToProcess(BaseAllocateArr *availableResource, AllocatorResource *processResource) {
+static void
+simulatedAllocatedResourceToProcess(BaseAllocateArr *availableResource, AllocatorResource *processResource) {
     HashMapResource *mapResource = createHashMapResource(availableResource->member);
     initHashMapResource(mapResource, availableResource);
     for (int i = 0; i < processResource->needResource->member; ++i) {
@@ -487,6 +488,31 @@ static void allocatedResourceToProcess(BaseAllocateArr *availableResource, Alloc
     destroyHashMapResource(mapResource);
 }
 
+static void
+simulatedRequestResourceToProcess(BaseAllocateArr *availableResource, AllocatorResource *processResource) {
+    HashMapResource *mapResource = createHashMapResource(availableResource->member);
+    initHashMapResource(mapResource, availableResource);
+    for (int i = 0; i < processResource->needResource->member; ++i) {
+        char *key = resourceTypeToString(processResource->needResource->array[i]->type);
+        int *value = getResource(mapResource, key);
+        *value -= processResource->needResource->array[i]->number;
+    }
+    destroyHashMapResource(mapResource);
+}
+
+static void
+simulatedReleaseResourceToProcess(BaseAllocateArr *availableResource, AllocatorResource *processResource) {
+    HashMapResource *mapResource = createHashMapResource(availableResource->member);
+    initHashMapResource(mapResource, availableResource);
+    for (int i = 0; i < processResource->maxResource->member; ++i) {
+        char *key = resourceTypeToString(processResource->maxResource->array[i]->type);
+        int *value = getResource(mapResource, key);
+        *value += processResource->maxResource->array[i]->number;
+    }
+    destroyHashMapResource(mapResource);
+}
+
+
 static void displaySafeResource(int i, AllocatorResource *resource, BaseAllocateArr *availableResource) {
     printf_s("################################################\n");
     printf_s("Process %d is executing\n", i);
@@ -496,6 +522,27 @@ static void displaySafeResource(int i, AllocatorResource *resource, BaseAllocate
     displayBaseAllocateArr(availableResource);
     printf_s("End Process\n");
     printf_s("################################################\n");
+}
+
+static void displaySafeSequence(int size, BankProConBlock *safeSequence[size]) {
+    printf_s("################################################\n");
+    printf_s("Safe Sequence: \n process id: ");
+    for (int i = 0; i < size; ++i) {
+        printf_s("%d ", safeSequence[i]->base->p_id);
+    }
+    printf_s("\n");
+    printf_s("################################################\n");
+}
+
+static void
+saveSafeSequenceToOrderExecute(int size, BankProConBlock *(*orderExecute)[size], BankProConBlock *safeSequence[size]) {
+    if (orderExecute == NULL)
+        return;
+
+    memset(orderExecute, 0, size * sizeof(int));
+    for (int i = 0; i < size; ++i) {
+        (*orderExecute)[i] = safeSequence[i];
+    }
 }
 
 /**
@@ -510,52 +557,132 @@ static void displaySafeResource(int i, AllocatorResource *resource, BaseAllocate
  * @param systemResource Pointer to the SystemResource structure used for memory management.
  * @return Boolean value indicating whether the system is in a safe state.
  */
-_Bool checkResourceSecurity(Banker *banker, SystemResource *systemResource) {
+_Bool
+checkResourceSecurity(Banker *banker, SystemResource *systemResource, BankProConBlock *(*orderExecute)[banker->size]) {
 
     BaseAllocateArr *availableResource = deepCopyBaseAllocateArr(banker->availableResource, systemResource->memory);
     _Bool finishArr[banker->size];
     memset(finishArr, false, banker->size * sizeof(_Bool));
 
-    int safeSequence[banker->size];
+    BankProConBlock *safeSequence[banker->size];
     int count = 0;
 
     _Bool flag = true;
     while (count < banker->size) {
         bool found = false;
         for (int i = 0; i < banker->size; ++i) {
-            if (!finishArr[i]) {
-                // Check if the process can be allocated the resources it needs.
-                if (canBeAllocated(banker->array[i]->resource->needResource, availableResource)) {
-                    // Simulate the allocation of resources to the process.
-                    allocatedResourceToProcess(availableResource, banker->array[i]->resource);
-                    displaySafeResource(banker->array[i]->base->p_id, banker->array[i]->resource, availableResource);
+            // find a process that has not been executed
+            if (finishArr[i] == true) {
+                continue;
+            }
 
-                    finishArr[i] = true;
-                    safeSequence[count++] = banker->array[i]->base->p_id;
-                    found = true;
-                }
+            // find a process that needs fewer resources than the available resources
+            if (canBeAllocated(banker->array[i]->resource->needResource, availableResource)) {
+                // Simulate the allocation of resources to the process.
+                simulatedAllocatedResourceToProcess(
+                        availableResource,
+                        banker->array[i]->resource
+                );
+                displaySafeResource(
+                        banker->array[i]->base->p_id,
+                        banker->array[i]->resource,
+                        availableResource
+                );
+
+                finishArr[i] = true;
+                safeSequence[count++] = banker->array[i];
+                found = true;
             }
         }
 
-        if (!found) {
-            printf_s("System is not in safe state.\n");
+        // If no process was found, the system is not in a safe state.
+        if (found == false) {
             flag = false;
             break;
         }
     }
 
-    if (flag) {
-        printf("Safe Sequence: ");
-        for (int i = 0; i < banker->size; ++i) {
-            printf("%d ", safeSequence[i]);
-        }
+    if (flag == true) {
+        saveSafeSequenceToOrderExecute(banker->size, orderExecute, safeSequence);
         printf_s("\nSystem is in safe state.\n");
+        displaySafeSequence(banker->size, safeSequence);
+    } else {
+        printf_s("System is not in safe state.\n");
     }
 
     destroyBaseAllocateArr(availableResource, systemResource->memory);
     return flag;
 }
 
+
+void displayBanker(Banker *banker) {
+    printf_s("###################################\n");
+    printf_s("Banker:\n");
+    printf_s("\tsize: %d\n", banker->size);
+    printf_s("\tmaxSize: %d\n", banker->maxSize);
+    printf_s("\tarray:\n");
+    for (int i = 0; i < banker->size; ++i) {
+        displayBankProConBlock(banker->array[i]);
+    }
+    printf_s("\tavailableResource:\n");
+    displayBaseAllocateArr(banker->availableResource);
+    printf_s("###################################\n");
+}
+
+
+/*
+银行家算法是一种用于避免死锁的资源分配算法，其主要目标是确保在资源分配的过程中，系统能够判断当前状态是否安全，即分配资源后是否可能导致死锁。
+ 下面是银行家算法的基本实现步骤：
+
+    初始化资源和进程信息：
+        定义系统资源数量，包括每类资源的总数和可用数。
+        初始化每个进程的最大需求矩阵 Max、已分配资源矩阵 Allocation 和需求矩阵 Need。
+
+    银行家算法数据结构设计：
+        设计数据结构来表示系统资源和进程信息，包括资源数量、已分配资源、最大需求资源、需求资源等。
+
+    安全性检查函数 isSafeState：
+        编写函数用于判断系统的当前状态是否是安全的，即是否存在一种资源分配序列避免死锁。
+
+    资源请求处理函数 requestResources：
+        编写函数用于处理进程对资源的请求，包括检查请求是否合法，如果合法则尝试分配资源，然后进行安全性检查。
+
+    资源释放函数 releaseResources：
+        编写函数用于释放进程占用的资源，然后进行安全性检查。
+
+    死锁避免策略：
+        在资源请求和释放的过程中，根据银行家算法的思想，实现相应的死锁避免策略。
+
+    测试和验证：
+        编写测试用例，验证银行家算法在不同情况下的正确性和可行性。
+
+    完善和优化：
+        根据实际需求和系统特点，完善算法的实现，优化性能。
+ */
+void bankerResourceAllocatedAlgorithm(
+        int mp, ProConBlock *pcbArr[mp],
+        int mr, ResourceType availableResourceArr[mr][2],
+        ResourceType bankerProConBlockGroup[mp][mr][3],
+        SystemResource *systemResource
+) {
+    displaySystemResource(systemResource);
+    // 1.初始化资源和进程信息
+    Banker *banker = initBanker(availableResourceArr, mr, systemResource);
+    pushProConBlockArrToBanker(banker, pcbArr, mp, mr, bankerProConBlockGroup, systemResource);
+    displayBanker(banker);
+    // 2.银行家算法数据结构设计
+    BankProConBlock *orderExecute[banker->size];
+    // 3.安全性检查函数 isSafeState
+    if (checkResourceSecurity(banker, systemResource, &orderExecute) == true) {
+        // 4.按照安全序列执行，对资源的请求 requestResources 和分配与释放 releaseResources
+        for (int i = 0; i < banker->size; ++i) {
+            BankProConBlock *safeBank = orderExecute[i];
+            simulatedAllocatedResourceToProcess(banker->availableResource, safeBank->resource);
+            displayBaseAllocateArr(banker->availableResource);
+        }
+        destroyBanker(banker, systemResource);
+    }
+}
 
 /**
  * @brief Creates a deep copy of a BankProConBlock structure.

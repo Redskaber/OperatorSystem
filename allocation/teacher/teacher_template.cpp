@@ -137,6 +137,8 @@ void show() //函数show,输出当前资源分配情况
 
 //银行家算法函数
 void bank() {
+
+    //
     cout << endl << "进程申请分配资源：" << endl;
     int k = 0;  //用于输入进程编号
     bool r = false;  // 初值为假，输入Y继续申请则置为真
