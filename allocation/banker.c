@@ -220,6 +220,7 @@ Banker *initBanker(
         SystemResource *systemResource
 ) {
     Banker *newBanker = NULL;
+    assert(rows >= 0);
 
     newBanker = systemResource->memory->allocate(systemResource->memory, sizeof(Banker));
     assert(newBanker != NULL);
@@ -232,12 +233,13 @@ Banker *initBanker(
 
     newBanker->availableResource = initBaseAllocateArr(systemResource->memory, newBanker->maxSize);
 
-    initResourceArr(
-            newBanker->availableResource,
-            availableResourceArr, rows,
-            systemResource->memory
-    );
-
+    if (rows > 0) {
+        initResourceArr(
+                newBanker->availableResource,
+                availableResourceArr, rows,
+                systemResource->memory
+        );
+    }
     return newBanker;
 }
 
@@ -413,7 +415,14 @@ void pushProConBlockArrToBanker(
             assignedResourceArr[j][0] = bankerProConBlockGroup[i][j][0];
             assignedResourceArr[j][1] = bankerProConBlockGroup[i][j][2];
         }
-        assert(whetherResourcesCanBeAllocated(rows, assignedResourceArr, banker->availableResource) == true);
+
+        _Bool canAllocated = whetherResourcesCanBeAllocated(rows, assignedResourceArr, banker->availableResource);
+        if (canAllocated == false) {
+            displayBaseAllocateArr(banker->availableResource);
+            displayResourceTypArr(member, assignedResourceArr);
+            assert(canAllocated == true);
+        }
+
         initAllocatorResourceArr(bankProConBlock, maxResourceArr, assignedResourceArr, rows, systemResource);
         pushProConBlockToBanker(banker, bankProConBlock, systemResource);
     }
@@ -503,17 +512,11 @@ static void displaySafeResource(int i, AllocatorResource *resource, BaseAllocate
  */
 _Bool checkResourceSecurity(Banker *banker, SystemResource *systemResource) {
 
-    // Deep copy of the available resources in the system.
     BaseAllocateArr *availableResource = deepCopyBaseAllocateArr(banker->availableResource, systemResource->memory);
-
-    // Array to keep track of the finished processes.
     _Bool finishArr[banker->size];
     memset(finishArr, false, banker->size * sizeof(_Bool));
 
-    // Array to store the safe sequence of processes.
     int safeSequence[banker->size];
-
-    // Index for the safe sequence array.
     int count = 0;
 
     _Bool flag = true;
@@ -525,21 +528,16 @@ _Bool checkResourceSecurity(Banker *banker, SystemResource *systemResource) {
                 if (canBeAllocated(banker->array[i]->resource->needResource, availableResource)) {
                     // Simulate the allocation of resources to the process.
                     allocatedResourceToProcess(availableResource, banker->array[i]->resource);
+                    displaySafeResource(banker->array[i]->base->p_id, banker->array[i]->resource, availableResource);
 
-                    // Print the status of the resources.
-                    displaySafeResource(i, banker->array[i]->resource, availableResource);
-
-                    // Mark the process as finished.
                     finishArr[i] = true;
-                    // Add the process to the safe sequence.
-                    safeSequence[count++] = i;
+                    safeSequence[count++] = banker->array[i]->base->p_id;
                     found = true;
                 }
             }
         }
 
         if (!found) {
-            // If no process can be allocated resources, the system is not in a safe state.
             printf_s("System is not in safe state.\n");
             flag = false;
             break;
@@ -547,7 +545,6 @@ _Bool checkResourceSecurity(Banker *banker, SystemResource *systemResource) {
     }
 
     if (flag) {
-        // If a safe sequence is found, print it and declare the system as safe.
         printf("Safe Sequence: ");
         for (int i = 0; i < banker->size; ++i) {
             printf("%d ", safeSequence[i]);
@@ -555,7 +552,6 @@ _Bool checkResourceSecurity(Banker *banker, SystemResource *systemResource) {
         printf_s("\nSystem is in safe state.\n");
     }
 
-    // Destroy the deep copy of the available resources.
     destroyBaseAllocateArr(availableResource, systemResource->memory);
     return flag;
 }

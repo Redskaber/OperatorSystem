@@ -28,6 +28,7 @@ Swap *createSwap(int total, Allocator *allocator) {
     Swap *newSwap = NULL;
     newSwap = allocator->allocate(allocator, sizeof(Swap));
     assert(newSwap != NULL);
+    assert(total >= 0);
 
     newSwap->total = total;
     newSwap->used = 0;

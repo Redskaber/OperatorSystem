@@ -28,6 +28,7 @@ Allocator *createAllocator(int total) {
     Allocator *newAllocator = NULL;
     newAllocator = (Allocator *) malloc(sizeof(Allocator));
     assert(newAllocator != NULL);
+    assert(total >= 0);
 
     newAllocator->total = total;
     newAllocator->used = 0;
@@ -55,7 +56,11 @@ Allocator *createAllocator(int total) {
  */
 static void *allocate(Allocator *allocator, size_t size) {
 
-    assert(size <= allocator->remain);
+    if (size > allocator->remain) {
+        printf_s("Error: Not enough memory resources. need[%d]\n", size);
+        allocator->display(allocator);
+        assert(size <= allocator->remain);
+    }
 
     void *newAllocate = malloc(size);
     memset(newAllocate, 0, size);

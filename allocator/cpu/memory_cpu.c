@@ -28,6 +28,7 @@ Cpu *createCpu(int total, Allocator *allocator) {
     Cpu *newCpu = NULL;
     newCpu = allocator->allocate(allocator, sizeof(Cpu));
     assert(newCpu != NULL);
+    assert(total >= 0);
 
     newCpu->total = total;
     newCpu->used = 0;

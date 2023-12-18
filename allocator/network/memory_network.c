@@ -28,6 +28,7 @@ NetWork *createNetWork(int total, Allocator *allocator) {
     NetWork *newNetWork = NULL;
     newNetWork = allocator->allocate(allocator, sizeof(NetWork));
     assert(newNetWork != NULL);
+    assert(total >= 0);
 
     newNetWork->total = total;
     newNetWork->used = 0;

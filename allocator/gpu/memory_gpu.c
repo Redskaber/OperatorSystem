@@ -28,6 +28,7 @@ Gpu *createGpu(int total, Allocator *allocator) {
     Gpu *newGpu = NULL;
     newGpu = allocator->allocate(allocator, sizeof(Gpu));
     assert(newGpu != NULL);
+    assert(total >= 0);
 
     newGpu->total = total;
     newGpu->used = 0;

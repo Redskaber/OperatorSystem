@@ -28,6 +28,7 @@ File *createFile(int total, Allocator *allocator) {
     File *newFile = NULL;
     newFile = allocator->allocate(allocator, sizeof(File));
     assert(newFile != NULL);
+    assert(total >= 0);
 
     newFile->total = total;
     newFile->used = 0;

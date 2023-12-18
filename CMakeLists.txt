@@ -9,8 +9,8 @@ add_executable(OperatorSystem main.c
         process/test/process_scheduling/test_process_scheduling.c
         allocation/banker.c
         allocation/banker.h
-        allocation/test/test_allocator.h
-        allocation/test/test_allocator.c
+        allocation/test/header/test_allocator.h
+        allocation/test/allocation/test_allocator.c
         allocator/systemResource.c
         allocator/systemResource.h
         allocation/teacher/teacher_template.cpp
@@ -35,4 +35,11 @@ add_executable(OperatorSystem main.c
         tools/hashMapResource/hashMapResource.h
         process/test/process_scheduling/test_reverseProConBlockFromLink.c
         process/test/header/test_reverseProConBlockFromLink.h
+        allocation/test/allocation/test_checkResourceSecurity.c
+        allocation/test/header/test_checkResourceSecurity.h
+        allocation/test/allocation/test_initBanker.c
+        allocation/test/header/test_initBanker.h
+        allocator/test/allocator/test_initSystemResource.c
+        allocator/test/header/test_initSystemResource.h
+        main.h
 )

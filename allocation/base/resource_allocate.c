@@ -117,15 +117,15 @@ void destroyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Allocator *allocat
     }
 }
 
-BaseAllocateArr * deepCopyBaseAllocateArr(BaseAllocateArr* baseAllocateArr, Allocator* allocator){
-    BaseAllocateArr* newBaseAllocateArr = initBaseAllocateArr(allocator, baseAllocateArr->max_member);
+BaseAllocateArr *deepCopyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Allocator *allocator) {
+    BaseAllocateArr *newBaseAllocateArr = initBaseAllocateArr(allocator, baseAllocateArr->max_member);
     for (int i = 0; i < baseAllocateArr->member; ++i) {
-        newBaseAllocateArr->array[i] = initBaseAllocate(allocator, baseAllocateArr->array[i]->type, baseAllocateArr->array[i]->number);
+        newBaseAllocateArr->array[i] = initBaseAllocate(allocator, baseAllocateArr->array[i]->type,
+                                                        baseAllocateArr->array[i]->number);
     }
     newBaseAllocateArr->member = baseAllocateArr->member;
     return newBaseAllocateArr;
 }
-
 
 
 /**
@@ -169,7 +169,7 @@ void initResourceArr(
 void displayBaseAllocateArr(BaseAllocateArr *baseAllocateArr) {
     printf_s("###################################\n");
     for (int i = 0; i < baseAllocateArr->member; ++i) {
-        printf_s("[%s, %d] ",
+        printf_s("[%s: %d] ",
                  resourceTypeToString(baseAllocateArr->array[i]->type),
                  baseAllocateArr->array[i]->number
         );
@@ -177,6 +177,19 @@ void displayBaseAllocateArr(BaseAllocateArr *baseAllocateArr) {
     printf_s("\n");
     printf_s("###################################\n");
 }
+
+void displayResourceTypArr(int member, ResourceType resourceTypeArr[member][2]) {
+    printf_s("###################################\n");
+    for (int i = 0; i < member; ++i) {
+        printf_s("[%s: %d] ",
+                 resourceTypeToString(resourceTypeArr[i][0]),
+                 resourceTypeArr[i][1]
+        );
+    }
+    printf_s("\n");
+    printf_s("###################################\n");
+}
+
 
 /**
  * @brief Adds a resource to a BaseAllocateArr structure.

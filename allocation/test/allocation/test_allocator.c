@@ -4,7 +4,7 @@
  Time: 15:18
 */
 
-#include "test_allocator.h"
+#include "../header/test_allocator.h"
 
 static void *proCallBack(void *args) {
     printf_s("args", args);
@@ -23,7 +23,7 @@ void test_allocator() {
     displaySystemResource(sr);
 
     ResourceType availableResource[4][2] = {
-            {memory,  25},
+            {memory,  20},
             {cpu,     20},
             {gpu,     20},
             {network, 10}};
@@ -49,8 +49,8 @@ void test_allocator() {
                     {network, 3, 2}
             },
             {
-                    {memory, 4,  4},
-                    {cpu, 4, 3},
+                    {memory, 4,  1},
+                    {cpu, 7, 3},
                     {gpu, 7, 3},
                     {network, 3, 0}
             },
@@ -95,6 +95,7 @@ void test_allocator() {
 
     ProConBlock *pcbArr[5] = {pcb1, pcb2, pcb3, pcb4, pcb5};
     pushProConBlockArrToBanker(banker, pcbArr, 5, 4, bankerProConBlockGroup, sr);
+    displayBaseAllocateArr(banker->availableResource);
     checkResourceSecurity(banker, sr);
 
     displaySystemResource(sr);

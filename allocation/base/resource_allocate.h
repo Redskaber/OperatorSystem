@@ -80,6 +80,8 @@ extern void pushToResourceArrUsedBaseAllocate(BaseAllocateArr *destArr, BaseAllo
 
 extern void displayBaseAllocateArr(BaseAllocateArr *baseAllocateArr);
 
+extern void displayResourceTypArr(int member, ResourceType resourceTypeArr[member][2]);
+
 extern AllocatorResource *initAllocatorResource(Allocator *allocator);
 
 #endif //OPERATORSYSTEM_RESOURCE_ALLOCATE_H
