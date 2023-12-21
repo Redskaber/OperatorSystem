@@ -7,7 +7,8 @@
 #include "../header/test_allocator.h"
 
 static void *proCallBack(void *args) {
-    printf_s("args", args);
+    ProConBlock *pcb = (ProConBlock *) args;
+    printf("[ CALLBACK ]: process %s is running\n", pcb->p_name);
     return args;
 }
 
@@ -22,13 +23,13 @@ void test_allocator() {
     SystemResource *sr = createSystemResource();
     displaySystemResource(sr);
 
-    ResourceType availableResource[4][2] = {
+    ResourceType availableResourceArr[4][2] = {
             {memory,  20},
             {cpu,     20},
             {gpu,     20},
             {network, 10}};
 
-    ResourceType bankerProConBlockGroup[5][4][3] = {
+    ResourceType bankerPCBResourceGroup[5][4][3] = {
             {
                     {memory, 10, 6},
                     {cpu, 5, 3},
@@ -96,13 +97,11 @@ void test_allocator() {
 
     bankerResourceAllocatedAlgorithm(
             5, pcbArr,
-            4, availableResource,
-            bankerProConBlockGroup,
+            4, availableResourceArr,
+            bankerPCBResourceGroup,
             sr
     );
 
     displaySystemResource(sr);
     destroySystemResource(sr);
-
-
 }

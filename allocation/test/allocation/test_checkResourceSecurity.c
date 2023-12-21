@@ -44,8 +44,8 @@ void test_checkResourceSecurity_withSafeSequence_returnsTrue() {
     pushProConBlockArrToBanker(banker, pcbArr, 3, 3, bankerProConBlockGroup, systemResource);
 
     // Check if the system is in a safe state.
-    int orderExecute[banker->size] = {};
-    assert(checkResourceSecurity(banker, systemResource, &orderExecute) == true);
+    BankProConBlock *orderExecute[banker->size];
+    assert(checkResourceSecurity(banker, systemResource, &orderExecute) == false);
     for (int i = 0; i < banker->size; i++) {
         printf_s("%d ", orderExecute[i]);
     }
@@ -68,7 +68,7 @@ void test_checkResourceSecurity_withUnsafeSequence_returnsFalse() {
     Banker *banker = initBanker(availableResourceArr, 3, systemResource);
 
     // Add some processes to the Banker structure.
-    ResourceType bankerProConBlockGroup[][3][3] = {
+    ResourceType bankerProConBlockGroup[3][3][3] = {
             {
                     {cpu, 7,  5},
                     {memory, 10, 5},
@@ -93,7 +93,7 @@ void test_checkResourceSecurity_withUnsafeSequence_returnsFalse() {
     pushProConBlockArrToBanker(banker, pcbArr, 3, 3, bankerProConBlockGroup, systemResource);
 
     // Check if the system is in a safe state.
-    int orderExecute[banker->size] = {};
+    BankProConBlock *orderExecute[banker->size];
     assert(checkResourceSecurity(banker, systemResource, &orderExecute) == false);
     for (int i = 0; i < banker->size; i++) {
         printf_s("%d ", orderExecute[i]);

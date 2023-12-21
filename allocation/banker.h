@@ -63,9 +63,9 @@ extern BankProConBlock *initBankProConBlockUsed(ProConBlock *proConBlock, Alloca
 
 extern void initAllocatorResourceArr(
         BankProConBlock *bankProConBlock,
-        ResourceType maxResourceArr[][2],
-        ResourceType assignedResourceArr[][2],
         int rows,
+        ResourceType maxResourceArr[rows][2],
+        ResourceType assignedResourceArr[rows][2],
         SystemResource *systemResource
 );
 
@@ -100,7 +100,7 @@ extern void pushProConBlockArrToBanker(
 extern void bankerResourceAllocatedAlgorithm(
         int mp, ProConBlock *pcbArr[mp],
         int mr, ResourceType availableResourceArr[mr][2],
-        ResourceType bankerProConBlockGroup[mp][mr][3],
+        ResourceType bankerPCBResourceGroup[mp][mr][3],
         SystemResource *systemResource
 );
 

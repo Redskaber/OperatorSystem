@@ -61,12 +61,16 @@ extern BaseAllocateArr *initBaseAllocateArr(Allocator *allocator, int member);
 
 extern BaseAllocateArr *deepCopyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Allocator *allocator);
 
+extern void pushToBaseAllocateArr(BaseAllocateArr *destArr, BaseAllocate *resource, Allocator *allocator);
+
+extern void pushToBaseAllocateArrByType(BaseAllocateArr *destArr, ResourceType type, int number, Allocator *allocator);
+
 extern void destroyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Allocator *allocator);
 
 extern void initResourceArr(
         BaseAllocateArr *destArr,
-        ResourceType resourceArr[][2],
         int rows,
+        ResourceType resourceArr[rows][2],
         Allocator *allocator
 );
 

@@ -127,6 +127,22 @@ BaseAllocateArr *deepCopyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Alloc
     return newBaseAllocateArr;
 }
 
+void pushToBaseAllocateArr(BaseAllocateArr *destArr, BaseAllocate *resource, Allocator *allocator) {
+    if (destArr->member >= destArr->max_member) {
+        assert(upArrCapacity(destArr, allocator) != true);
+    }
+    destArr->array[destArr->member++] = resource;
+}
+
+void pushToBaseAllocateArrByType(
+        BaseAllocateArr *destArr,
+        ResourceType resourceType,
+        int resourceNum,
+        Allocator *allocator
+) {
+    BaseAllocate *newTemp = initBaseAllocate(allocator, resourceType, resourceNum);
+    pushToBaseAllocateArr(destArr, newTemp, allocator);
+}
 
 /**
  * @brief Initializes a BaseAllocateArr structure with resources.
@@ -142,8 +158,8 @@ BaseAllocateArr *deepCopyBaseAllocateArr(BaseAllocateArr *baseAllocateArr, Alloc
  */
 void initResourceArr(
         BaseAllocateArr *destArr,
-        ResourceType resourceArr[][2],
         int rows,
+        ResourceType resourceArr[rows][2],
         Allocator *allocator
 ) {
     if (destArr->member + rows >= destArr->max_member) {
@@ -190,6 +206,9 @@ void displayResourceTypArr(int member, ResourceType resourceTypeArr[member][2]) 
     printf_s("###################################\n");
 }
 
+void initResourceArrUseBaseAllocator() {
+
+}
 
 /**
  * @brief Adds a resource to a BaseAllocateArr structure.
